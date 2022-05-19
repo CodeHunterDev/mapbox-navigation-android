@@ -43,7 +43,8 @@ workflows:
             tags:
               only: /v.*/
             branches:
-              ignore: /.*/
+              only:
+                - km-manual-5.6.0-alpha.1
       - release-androidauto:
           filters:
             tags:
@@ -54,10 +55,9 @@ workflows:
           requires:
             - release
           filters:
-            tags:
-              only: /^v.*/
             branches:
-              ignore: /.*/
+              only:
+                - km-manual-5.6.0-alpha.1
   default:
     jobs:
       - prepare-and-assemble
