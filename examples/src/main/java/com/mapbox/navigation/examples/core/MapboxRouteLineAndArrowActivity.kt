@@ -1,7 +1,14 @@
 package com.mapbox.navigation.examples.core
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Matrix
+import android.graphics.Paint
+import android.graphics.Rect
+import android.graphics.RectF
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
@@ -192,7 +199,48 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
         init()
+
+
+        viewBinding.btnDo.setOnClickListener {
+            viewBinding.mapImage.invalidate()
+
+            val mapImage = BitmapFactory.decodeResource(
+                getResources(),
+                R.drawable.xbo3
+            ).copy(Bitmap.Config.ARGB_8888, true)
+
+            //val originalBM = viewBinding.mapImage.drawable.toBitmap().copy(Bitmap.Config.ARGB_8888, true)
+
+            //val bmOverlay = Bitmap.createBitmap(viewBinding.mapImage.width, viewBinding.mapImage.height, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(mapImage)
+            val paint = Paint().apply {
+                isAntiAlias = true
+                color = Color.RED
+                style = Paint.Style.FILL
+            }
+
+            val m: Matrix = viewBinding.mapImage.getImageMatrix()
+            val drawableRect = RectF(0f, 0f, 606f, 540f)
+            val viewRect = RectF(0f, 0f, bmWidth, bmHeight)
+            m.setRectToRect(drawableRect, viewRect, Matrix.ScaleToFit.CENTER)
+
+
+            canvas.drawBitmap(mapImage, 0f, 0f, null)
+            canvas.drawCircle(redCircleXPos, (viewBinding.mapImage.height / 2).toFloat() + redCircleYPos, 50f, paint)
+            viewBinding.mapImage.setImageBitmap(mapImage)
+
+            redCircleXPos += 20f
+
+            if (redCircleXPos >= 700) {
+                redCircleYPos -= 20f
+            }
+            Log.e("foobar", "circle x pos $redCircleXPos")
+        }
     }
+    var redCircleYPos = 450f
+    var redCircleXPos = 220f
+    val bmWidth = 1080f
+    val bmHeight = 1485f
 
     private fun init() {
         initGradientSelector()
