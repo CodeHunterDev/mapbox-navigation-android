@@ -209,9 +209,7 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
                 R.drawable.xbo3
             ).copy(Bitmap.Config.ARGB_8888, true)
 
-            //val originalBM = viewBinding.mapImage.drawable.toBitmap().copy(Bitmap.Config.ARGB_8888, true)
 
-            //val bmOverlay = Bitmap.createBitmap(viewBinding.mapImage.width, viewBinding.mapImage.height, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(mapImage)
             val paint = Paint().apply {
                 isAntiAlias = true
@@ -219,10 +217,10 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
                 style = Paint.Style.FILL
             }
 
-            val m: Matrix = viewBinding.mapImage.getImageMatrix()
-            val drawableRect = RectF(0f, 0f, 606f, 540f)
-            val viewRect = RectF(0f, 0f, bmWidth, bmHeight)
-            m.setRectToRect(drawableRect, viewRect, Matrix.ScaleToFit.CENTER)
+            //val m: Matrix = viewBinding.mapImage.getImageMatrix()
+            //val drawableRect = RectF(0f, 0f, 606f, 540f)
+            //val viewRect = RectF(0f, 0f, bmWidth, bmHeight)
+            //m.setRectToRect(drawableRect, viewRect, Matrix.ScaleToFit.CENTER)
 
 
             canvas.drawBitmap(mapImage, 0f, 0f, null)

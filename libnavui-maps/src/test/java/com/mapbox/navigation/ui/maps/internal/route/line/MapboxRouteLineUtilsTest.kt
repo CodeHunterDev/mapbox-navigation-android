@@ -19,6 +19,7 @@ import com.mapbox.maps.extension.style.layers.getLayer
 import com.mapbox.maps.extension.style.layers.properties.generated.Visibility
 import com.mapbox.navigation.base.internal.NativeRouteParserWrapper
 import com.mapbox.navigation.base.route.toNavigationRoute
+import com.mapbox.navigation.base.utils.DecodeUtils.completeGeometryToLineString
 import com.mapbox.navigation.testing.FileUtils
 import com.mapbox.navigation.ui.maps.route.RouteLayerConstants.ALTERNATIVE_ROUTE1_CASING_LAYER_ID
 import com.mapbox.navigation.ui.maps.route.RouteLayerConstants.ALTERNATIVE_ROUTE1_LAYER_ID
@@ -49,6 +50,9 @@ import com.mapbox.navigation.ui.maps.route.line.model.RouteLineScaleValue
 import com.mapbox.navigation.ui.maps.route.line.model.RouteStyleDescriptor
 import com.mapbox.navigation.ui.maps.testing.TestingUtil.loadRoute
 import com.mapbox.navigator.RouteInterface
+import com.mapbox.turf.TurfConstants
+import com.mapbox.turf.TurfMeasurement
+import com.mapbox.turf.TurfMisc
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -1896,6 +1900,27 @@ class MapboxRouteLineUtilsTest {
 
         return first.zip(second).all { (x, y) ->
             equalityFun(x, y)
+        }
+    }
+
+    @Test
+    fun temp() {
+        val route = loadRoute("temp-delete-me-route.json")
+        val routeGeometry = route.completeGeometryToLineString()
+
+        val fillPoint = getFillPoint(routeGeometry.coordinates()[0], routeGeometry.coordinates()[1])
+
+
+    }
+
+    private tailrec fun getFillPoint(startPoint: Point, endPoint: Point): Point {
+        // rough estimate 60 mph is roughly 26 meters per second
+        // the rational being route progress is every second
+        val distThreshold = 26.0
+        return if (TurfMeasurement.distance(startPoint, endPoint, TurfConstants.UNIT_METERS) <= distThreshold) {
+            endPoint
+        } else {
+            getFillPoint(startPoint, TurfMeasurement.midpoint(startPoint, endPoint))
         }
     }
 }
