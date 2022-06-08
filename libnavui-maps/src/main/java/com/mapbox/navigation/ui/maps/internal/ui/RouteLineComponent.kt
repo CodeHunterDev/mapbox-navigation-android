@@ -51,13 +51,8 @@ class RouteLineComponent(
     contractProvider: Provider<RouteLineComponentContract>? = null
 ) : UIComponent() {
 
-    private val contractProvider: Provider<RouteLineComponentContract>
-
-    init {
-        this.contractProvider = contractProvider ?: Provider {
-            MapboxRouteLineComponentContract()
-        }
-    }
+    private val contractProvider: Provider<RouteLineComponentContract> = contractProvider
+        ?: Provider { MapboxRouteLineComponentContract() }
 
     private var contract: RouteLineComponentContract? = null
 
