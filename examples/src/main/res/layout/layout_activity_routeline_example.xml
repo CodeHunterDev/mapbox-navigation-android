@@ -104,7 +104,7 @@
         android:text="right"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/optionTrafficGradient"
-        android:visibility="invisible"/>
+        />
 
     <Button
         android:id="@+id/moveUp"
@@ -113,7 +113,7 @@
         android:text="up"
         app:layout_constraintEnd_toStartOf="@id/moveRight"
         app:layout_constraintBottom_toTopOf="@+id/optionTrafficGradient"
-        android:visibility="invisible"/>
+        />
 
     <Button
         android:id="@+id/moveLeft"
@@ -122,7 +122,7 @@
         android:text="left"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/moveUp"
-        android:visibility="invisible"/>
+        />
 
     <Button
         android:id="@+id/moveDown"
@@ -131,6 +131,6 @@
         android:text="down"
         app:layout_constraintEnd_toStartOf="@id/moveLeft"
         app:layout_constraintBottom_toTopOf="@id/moveUp"
-        android:visibility="invisible"/>
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

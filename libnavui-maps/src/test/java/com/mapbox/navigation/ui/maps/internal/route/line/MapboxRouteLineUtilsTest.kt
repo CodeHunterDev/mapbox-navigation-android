@@ -85,6 +85,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import kotlin.math.abs
 
 class MapboxRouteLineUtilsTest {
 
@@ -1920,34 +1921,10 @@ class MapboxRouteLineUtilsTest {
 
     @Test
     fun temp() = runBlockingTest {
-       // val distThreshold = 250.0
-        val lowerDistThreshold = 200
-        val distThreshold = 250
+
         val route = loadRoute("temp-delete-me-route.json")
         val routeGeometry = route.completeGeometryToLineString()
         val newPoints = mutableListOf<Point>(routeGeometry.coordinates().first())
-        var endPointIndex = 1
-        // while (endPointIndex < routeGeometry.coordinates().size) {
-        //
-        //     val lastFillPoint = if (newPoints.isEmpty()) {
-        //         getFillPoint(routeGeometry.coordinates().first(), routeGeometry.coordinates()[1])
-        //     } else if(newPoints.size == 1) {
-        //         getFillPoint(routeGeometry.coordinates().first(), newPoints.first())
-        //     } else {
-        //         getFillPoint(routeGeometry.coordinates()[newPoints.lastIndex - 1], newPoints.last())
-        //     }
-        //     //val lastFillPoint = getFillPoint(newPoints.last(), routeGeometry.coordinates()[endPointIndex])
-        //     newPoints.add(lastFillPoint)
-        //     //val dist = TurfMeasurement.distance(lastFillPoint, routeGeometry.coordinates()[endPointIndex], TurfConstants.UNIT_METERS)
-        //     //if (dist.toInt() in lowerDistThreshold..distThreshold) {
-        //         endPointIndex++
-        //     //}
-        // }
-        //
-        // newPoints.forEach {
-        //     println("Point.fromLngLat(${it.longitude()}, ${it.latitude()}),")
-        // }
-
 
         val replayRouteMapper = ReplayRouteMapper()
         val replayData: List<ReplayEventBase> = replayRouteMapper.mapDirectionsRouteGeometry(route)
@@ -1969,163 +1946,31 @@ class MapboxRouteLineUtilsTest {
             println("Point.fromLngLat(${it.longitude()}, ${it.latitude()}),")
         }
 
+    }
 
-        // val mapboxReplayer = MapboxReplayer().also {
-        //     val replayData: List<ReplayEventBase> = replayRouteMapper.mapDirectionsRouteGeometry(route)
-        //     it.pushEvents(replayData)
-        //     it.seekTo(replayData[0])
-        //     it.playbackSpeed(4.0)
-        // }
-        // mapboxReplayer.registerObserver(object: ReplayEventsObserver {
-        //     override fun replayEvents(events: List<ReplayEventBase>) {
-        //         events.forEach {
-        //
-        //         }
-        //     }
-        // })
-        // mapboxReplayer.play()
+    @Test
+    fun temp2() {
+        val locationPointDelta = 24
+        val xPositionStart = 1
+        val xPositionEnd = 1
+        val xPositionDelta = 200//abs(xPositionEnd - xPositionStart)
+        val yPositionStart = 1
+        val yPositionEnd = 1
+        val yPositionDelta = 0//abs(yPositionEnd - yPositionStart)
+        val granularLocationXDeltas = if (xPositionDelta > 0) {
+            locationPointDelta / xPositionDelta
+        } else {
+            xPositionStart
+        }
+        val granularLocationYDeltas = if (yPositionDelta > 0) {
+            locationPointDelta / yPositionDelta
+        } else {
+            yPositionStart
+        }
 
-
-
-
-        // InternalJobControlFactory.createDefaultScopeJobControl().scope.launch {
-        //     val minStart = async(Dispatchers.Default) {
-        //         newPoints.mapIndexed { index, point ->
-        //             Pair(index, TurfMeasurement.distance(point, Point.fromLngLat(135.256397, 34.443042), TurfConstants.UNIT_METERS))
-        //         }.minByOrNull { it.second }
-        //     }
-        //
-        //     val minEnd = async(Dispatchers.Default) {
-        //         newPoints.mapIndexed { index, point ->
-        //             Pair(index, TurfMeasurement.distance(point, Point.fromLngLat(135.293218, 34.415231), TurfConstants.UNIT_METERS))
-        //         }.minByOrNull { it.second }
-        //     }
-        //
-        //     val ms = minStart.await()
-        //     val me = minEnd.await()
-        //
-        //     ifNonNull(ms, me) { m1, m2 ->
-        //         val totalDist = TurfMeasurement.distance(newPoints[m1.first], newPoints[m2.first], TurfConstants.UNIT_METERS)
-        //         val indexDiff = m2.first - m1.first // 255
-        //         Log.e("foobar", "$m1, $m2, $indexDiff")
-        //
-        //         val y = 350
-        //         var counter = 0
-        //         println("listOf(")
-        //         for (i in (m1.first..m2.first)) {
-        //             //Log.e("foobar", "${newPoints[i]} -- x=185 y=${y + counter++}")
-        //
-        //             println("Pair(Point.fromLngLat(${newPoints[i].longitude()}, ${newPoints[i].latitude()}), Pair(185, ${y + counter++})),")
-        //         }
-        //         println(")")
-        //     }
-        // }
-
-        // val items = listOf(
-        //     Pair(Point.fromLngLat(135.256397, 34.443042), Pair(185, 350)),
-        //     Pair(Point.fromLngLat(135.25691250026844, 34.44299850108166), Pair(185, 351)),
-        //     Pair(Point.fromLngLat(135.257577, 34.442941), Pair(185, 352)),
-        //     Pair(Point.fromLngLat(135.257725, 34.442924), Pair(185, 353)),
-        //     Pair(Point.fromLngLat(135.257873, 34.442901), Pair(185, 354)),
-        //     Pair(Point.fromLngLat(135.258027, 34.442871), Pair(185, 355)),
-        //     Pair(Point.fromLngLat(135.258186, 34.442833), Pair(185, 356)),
-        //     Pair(Point.fromLngLat(135.258348, 34.442787), Pair(185, 357)),
-        //     Pair(Point.fromLngLat(135.258505, 34.442734), Pair(185, 358)),
-        //     Pair(Point.fromLngLat(135.258662, 34.44267), Pair(185, 359)),
-        //     Pair(Point.fromLngLat(135.258839, 34.442591), Pair(185, 360)),
-        //     Pair(Point.fromLngLat(135.259436, 34.442289), Pair(185, 361)),
-        //     Pair(Point.fromLngLat(135.260126, 34.441939), Pair(185, 362)),
-        //     Pair(Point.fromLngLat(135.260251, 34.441868), Pair(185, 363)),
-        //     Pair(Point.fromLngLat(135.260355, 34.441798), Pair(185, 364)),
-        //     Pair(Point.fromLngLat(135.26045, 34.441724), Pair(185, 365)),
-        //     Pair(Point.fromLngLat(135.260539, 34.44164), Pair(185, 366)),
-        //     Pair(Point.fromLngLat(135.260624, 34.441548), Pair(185, 367)),
-        //     Pair(Point.fromLngLat(135.26073, 34.441404), Pair(185, 368)),
-        //     Pair(Point.fromLngLat(135.260808, 34.441294), Pair(185, 369)),
-        //     Pair(Point.fromLngLat(135.260882, 34.441193), Pair(185, 370)),
-        //     Pair(Point.fromLngLat(135.26098, 34.441093), Pair(185, 371)),
-        //     Pair(Point.fromLngLat(135.26111, 34.440982), Pair(185, 372)),
-        //     Pair(Point.fromLngLat(135.261344, 34.440794), Pair(185, 373)),
-        //     Pair(Point.fromLngLat(135.261634, 34.440533), Pair(185, 374)),
-        //     Pair(Point.fromLngLat(135.261891, 34.440259), Pair(185, 375)),
-        //     Pair(Point.fromLngLat(135.262156, 34.439931), Pair(185, 376)),
-        //     Pair(Point.fromLngLat(135.26246250117018, 34.43961200038236), Pair(185, 377)),
-        //     Pair(Point.fromLngLat(135.26273194472563, 34.43933725240295), Pair(185, 378)),
-        //     Pair(Point.fromLngLat(135.2632034666839, 34.43885644201691), Pair(185, 379)),
-        //     Pair(Point.fromLngLat(135.26355710459143, 34.438495833039674), Pair(185, 380)),
-        //     Pair(Point.fromLngLat(135.26382233101893, 34.43822537563867), Pair(185, 381)),
-        //     Pair(Point.fromLngLat(135.26422016744095, 34.43781968846353), Pair(185, 382)),
-        //     Pair(Point.fromLngLat(135.26455287962605, 34.43748101769926), Pair(185, 383)),
-        //     Pair(Point.fromLngLat(135.265051942847, 34.43697300986332), Pair(185, 384)),
-        //     Pair(Point.fromLngLat(135.26533621000294, 34.43669200838414), Pair(185, 385)),
-        //     Pair(Point.fromLngLat(135.26576260715223, 34.43627050493204), Pair(185, 386)),
-        //     Pair(Point.fromLngLat(135.2662013057403, 34.4358582532493), Pair(185, 387)),
-        //     Pair(Point.fromLngLat(135.26661065467093, 34.43549062730664), Pair(185, 388)),
-        //     Pair(Point.fromLngLat(135.2669127437621, 34.43523622159421), Pair(185, 389)),
-        //     Pair(Point.fromLngLat(135.2673658739502, 34.434854611632765), Pair(185, 390)),
-        //     Pair(Point.fromLngLat(135.26788993965155, 34.43442780693415), Pair(185, 391)),
-        //     Pair(Point.fromLngLat(135.26826595872328, 34.434132606926916), Pair(185, 392)),
-        //     Pair(Point.fromLngLat(135.26882998235007, 34.43368980475815), Pair(185, 393)),
-        //     Pair(Point.fromLngLat(135.26941299435887, 34.433233403762415), Pair(185, 394)),
-        //     Pair(Point.fromLngLat(135.26978502642527, 34.43295215167853), Pair(185, 395)),
-        //     Pair(Point.fromLngLat(135.27015124304504, 34.43267529305811), Pair(185, 396)),
-        //     Pair(Point.fromLngLat(135.2705117351604, 34.43240275928746), Pair(185, 397)),
-        //     Pair(Point.fromLngLat(135.27086659229025, 34.432134482823855), Pair(185, 398)),
-        //     Pair(Point.fromLngLat(135.27121590255243, 34.43187039717894), Pair(185, 399)),
-        //     Pair(Point.fromLngLat(135.27155975268582, 34.4316104369022), Pair(185, 400)),
-        //     Pair(Point.fromLngLat(135.27189822807173, 34.43135453756489), Pair(185, 401)),
-        //     Pair(Point.fromLngLat(135.27223141275545, 34.431102635743954), Pair(185, 402)),
-        //     Pair(Point.fromLngLat(135.27255938946698, 34.43085466900647), Pair(185, 403)),
-        //     Pair(Point.fromLngLat(135.2728822396417, 34.43061057589412), Pair(185, 404)),
-        //     Pair(Point.fromLngLat(135.2732000434407, 34.43037029590804), Pair(185, 405)),
-        //     Pair(Point.fromLngLat(135.27351287977078, 34.43013376949386), Pair(185, 406)),
-        //     Pair(Point.fromLngLat(135.27382082630393, 34.42990093802689), Pair(185, 407)),
-        //     Pair(Point.fromLngLat(135.27442709102743, 34.42944254882067), Pair(185, 408)),
-        //     Pair(Point.fromLngLat(135.27501440363724, 34.42899848142429), Pair(185, 409)),
-        //     Pair(Point.fromLngLat(135.27558335677716, 34.42856828845678), Pair(185, 410)),
-        //     Pair(Point.fromLngLat(135.27613452454688, 34.428151536507016), Pair(185, 411)),
-        //     Pair(Point.fromLngLat(135.27666846308287, 34.42774780569786), Pair(185, 412)),
-        //     Pair(Point.fromLngLat(135.2771857111212, 34.42735668926376), Pair(185, 413)),
-        //     Pair(Point.fromLngLat(135.27768679054265, 34.42697779314167), Pair(185, 414)),
-        //     Pair(Point.fromLngLat(135.2781722069005, 34.426610735574656), Pair(185, 415)),
-        //     Pair(Point.fromLngLat(135.27864244993208, 34.42625514672781), Pair(185, 416)),
-        //     Pair(Point.fromLngLat(135.27909799405398, 34.425910668316185), Pair(185, 417)),
-        //     Pair(Point.fromLngLat(135.27953929884194, 34.425576953244295), Pair(185, 418)),
-        //     Pair(Point.fromLngLat(135.27996680949545, 34.42525366525689), Pair(185, 419)),
-        //     Pair(Point.fromLngLat(135.28038095728795, 34.42494047860058), Pair(185, 420)),
-        //     Pair(Point.fromLngLat(135.2807821600029, 34.424637077696104), Pair(185, 421)),
-        //     Pair(Point.fromLngLat(135.28117082235602, 34.42434315682063), Pair(185, 422)),
-        //     Pair(Point.fromLngLat(135.2815473364045, 34.42405841980012), Pair(185, 423)),
-        //     Pair(Point.fromLngLat(135.28191208194326, 34.423782579711265), Pair(185, 424)),
-        //     Pair(Point.fromLngLat(135.28226542688876, 34.423515358592645), Pair(185, 425)),
-        //     Pair(Point.fromLngLat(135.28260772765074, 34.423256487164984), Pair(185, 426)),
-        //     Pair(Point.fromLngLat(135.28293932949248, 34.4230057045601), Pair(185, 427)),
-        //     Pair(Point.fromLngLat(135.28326056687962, 34.42276275805819), Pair(185, 428)),
-        //     Pair(Point.fromLngLat(135.2835717638181, 34.4225274028336), Pair(185, 429)),
-        //     Pair(Point.fromLngLat(135.28417470290063, 34.42207139984308), Pair(185, 430)),
-        //     Pair(Point.fromLngLat(135.28473995231744, 34.421643894352464), Pair(185, 431)),
-        //     Pair(Point.fromLngLat(135.285269868396, 34.421243105593454), Pair(185, 432)),
-        //     Pair(Point.fromLngLat(135.28576666010582, 34.42086736405633), Pair(185, 433)),
-        //     Pair(Point.fromLngLat(135.28623239827863, 34.42051510454111), Pair(185, 434)),
-        //     Pair(Point.fromLngLat(135.28666902425164, 34.420184859642355), Pair(185, 435)),
-        //     Pair(Point.fromLngLat(135.287078357969, 34.4198752536407), Pair(185, 436)),
-        //     Pair(Point.fromLngLat(135.28746210557597, 34.41958499677573), Pair(185, 437)),
-        //     Pair(Point.fromLngLat(135.2878218665379, 34.4193128798764), Pair(185, 438)),
-        //     Pair(Point.fromLngLat(135.28815914031313, 34.419057769326656), Pair(185, 439)),
-        //     Pair(Point.fromLngLat(135.28847533260833, 34.418818602345524), Pair(185, 440)),
-        //     Pair(Point.fromLngLat(135.2890681882868, 34.41837016206292), Pair(185, 441)),
-        //     Pair(Point.fromLngLat(135.2895869317893, 34.417977774469286), Pair(185, 442)),
-        //     Pair(Point.fromLngLat(135.29004082836047, 34.41763443352845), Pair(185, 443)),
-        //     Pair(Point.fromLngLat(135.29043798480276, 34.417334008829904), Pair(185, 444)),
-        //     Pair(Point.fromLngLat(135.29078549434894, 34.417071136165696), Pair(185, 445)),
-        //     Pair(Point.fromLngLat(135.29139363079764, 34.41661110663858), Pair(185, 446)),
-        //     Pair(Point.fromLngLat(135.2918497287434, 34.4162660825182), Pair(185, 447)),
-        //     Pair(Point.fromLngLat(135.2921917997329, 34.41600731331697), Pair(185, 448)),
-        //     Pair(Point.fromLngLat(135.29270490224798, 34.415619157729694), Pair(185, 449)),
-        //     Pair(Point.fromLngLat(135.29317943206988, 34.41530287104589), Pair(185, 450)),
-        // )
-        //
-        // TurfMeasurement.distance(items.first().first, items[1].first, TurfConstants.UNIT_METERS)
+        repeat(locationPointDelta) { index ->
+            println("$xPositionStart+")
+        }
     }
 
     private tailrec fun getFillPoint(startPoint: Point, endPoint: Point): Point {
