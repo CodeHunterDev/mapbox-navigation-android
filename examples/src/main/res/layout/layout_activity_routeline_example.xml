@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -84,16 +85,52 @@
         android:layout_marginStart="8dp"
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toTopOf="@+id/optionTrafficGradient"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:visibility="invisible"/>
 
     <Button
         android:id="@+id/btnDimCHM"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="CHM"
-        android:layout_marginStart="8dp"
         android:layout_marginBottom="8dp"
+        android:text="CHM"
+        app:layout_constraintBottom_toTopOf="@id/btnDo"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/moveRight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="right"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/optionTrafficGradient"
-        app:layout_constraintStart_toEndOf="@id/btnDo"/>
+        android:visibility="invisible"/>
+
+    <Button
+        android:id="@+id/moveUp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="up"
+        app:layout_constraintEnd_toStartOf="@id/moveRight"
+        app:layout_constraintBottom_toTopOf="@+id/optionTrafficGradient"
+        android:visibility="invisible"/>
+
+    <Button
+        android:id="@+id/moveLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="left"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/moveUp"
+        android:visibility="invisible"/>
+
+    <Button
+        android:id="@+id/moveDown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="down"
+        app:layout_constraintEnd_toStartOf="@id/moveLeft"
+        app:layout_constraintBottom_toTopOf="@id/moveUp"
+        android:visibility="invisible"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
