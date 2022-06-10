@@ -371,9 +371,14 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
             style = Paint.Style.FILL
         }
 
+        // this was to make up for a mistake in the original y value
+        val yShim = 742
+
         canvas.drawBitmap(mapImage, 0f, 0f, null)
-        canvas.drawCircle(x, (viewBinding.mapImage.height / 2).toFloat() + y, 50f, paint)
+        canvas.drawCircle(x, yShim + y, 50f, paint)
         viewBinding.mapImage.setImageBitmap(mapImage)
+
+        Log.e("foobar", "imageHeight div2 is ${viewBinding.mapImage.height / 2} y = $y")
     }
 
     // var lastCHMUpdate = 0
