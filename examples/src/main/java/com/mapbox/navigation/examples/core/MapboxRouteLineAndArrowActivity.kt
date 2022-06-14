@@ -224,7 +224,7 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
         init()
 
         viewBinding.moveDown.setOnClickListener {
-            redCircleYPos += 10f
+            redCircleYPos += 5f
             updateCHMImage(
                 redCircleXPos,
                 redCircleYPos
@@ -233,7 +233,7 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
         }
 
         viewBinding.moveLeft.setOnClickListener {
-            redCircleXPos -= 10f
+            redCircleXPos -= 5f
             updateCHMImage(
                 redCircleXPos,
                 redCircleYPos
@@ -242,7 +242,7 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
         }
 
         viewBinding.moveRight.setOnClickListener {
-            redCircleXPos += 10f
+            redCircleXPos += 5f
             updateCHMImage(
                 redCircleXPos,
                 redCircleYPos
@@ -251,7 +251,7 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
         }
 
         viewBinding.moveUp.setOnClickListener {
-            redCircleYPos -= 10f
+            redCircleYPos -= 5f
             updateCHMImage(
                 redCircleXPos,
                 redCircleYPos
@@ -291,19 +291,19 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
             //     redCircleYPos -= 20f
             // }
 
-            if (indexCounterZZ < pointToPixelMap.size) {
+            if (indexCounterZZ < pointToPixelMapRevised.size) {
                 updateCHMImage(
                     //redCircleXPos,
                     //redCircleYPos
-                    pointToPixelMap[indexCounterZZ].second.first,
-                    pointToPixelMap[indexCounterZZ].second.second
+                    pointToPixelMapRevised[indexCounterZZ].second.first,
+                    pointToPixelMapRevised[indexCounterZZ].second.second
                 )
-                redCircleXPos = pointToPixelMap[indexCounterZZ].second.first
-                redCircleYPos = pointToPixelMap[indexCounterZZ].second.second
+                redCircleXPos = pointToPixelMapRevised[indexCounterZZ].second.first
+                redCircleYPos = pointToPixelMapRevised[indexCounterZZ].second.second
                 indexCounterZZ++
             }
 
-            Log.e("foobar", "circle x pos $redCircleXPos y pos $redCircleYPos")
+            Log.e("foobar", "circle x pos $redCircleXPos y pos $redCircleYPos  point= ${pointToPixelMapRevised[indexCounterZZ].first}")
             // locationRecorderOn = !locationRecorderOn
             // if (!locationRecorderOn) {
             //     printLocationRecordings()
@@ -367,18 +367,18 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
         val canvas = Canvas(mapImage)
         val paint = Paint().apply {
             isAntiAlias = true
-            color = Color.parseColor("#ffcc00")
+            color = Color.parseColor("#55ffcc00")
             style = Paint.Style.FILL
         }
 
         // this was to make up for a mistake in the original y value
-        val yShim = 742
+        val yShim = 0//742
 
         canvas.drawBitmap(mapImage, 0f, 0f, null)
         canvas.drawCircle(x, yShim + y, 50f, paint)
         viewBinding.mapImage.setImageBitmap(mapImage)
 
-        Log.e("foobar", "imageHeight div2 is ${viewBinding.mapImage.height / 2} y = $y")
+        //Log.e("foobar", "imageHeight div2 is ${viewBinding.mapImage.height / 2} y = $y")
     }
 
     // var lastCHMUpdate = 0
@@ -609,8 +609,15 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
                 initPointHighlightLayer(style)
                 //addPointToPixelMapPoints(style)
                 //addPointToPixelMapPoints(recordedPoints)
-                //addPointToPixelMapPoints(preRecordedPoints)
-                //highLightPointOnMap(preRecordedPoints[104])
+                addPointToPixelMapPoints(preRecordedPoints)
+
+                val pointToHighlightIndex = 76
+                highLightPointOnMap(preRecordedPoints[pointToHighlightIndex])
+                Log.e("foobar", "highlighted point is at ${preRecordedPoints[pointToHighlightIndex]}")
+
+                redCircleXPos = pointToPixelMapRevised.last().second.first
+                redCircleYPos = pointToPixelMapRevised.last().second.second
+                updateCHMImage(redCircleXPos, redCircleYPos)
             },
             object : OnMapLoadErrorListener {
                 override fun onMapLoadError(eventData: MapLoadingErrorEventData) {
@@ -811,6 +818,93 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
 
     private val job by lazy {
         InternalJobControlFactory.createDefaultScopeJobControl()
+    }
+
+    private val pointToPixelMapRevised: List<Pair<Point, Pair<Float, Float>>> by lazy {
+        listOf(
+            Pair(Point.fromLngLat(135.26354888814373, 34.438500471880225), Pair(190.0f, 1095.0f)),
+            Pair(Point.fromLngLat(135.26729722216783, 34.43489747681673), Pair(190.0f, 1106.875f)),
+            Pair(Point.fromLngLat(135.27143269522125, 34.43169180777495), Pair(190.0f, 1118.75f)),
+            Pair(Point.fromLngLat(135.27550312908502, 34.428617005239126), Pair(190.0f, 1130.625f)),
+            Pair(Point.fromLngLat(135.2795732634925, 34.42554206785929), Pair(190.0f, 1142.5f)),
+            Pair(Point.fromLngLat(135.28364309848703, 34.422466995660905), Pair(190.0f, 1154.375f)),
+            Pair(Point.fromLngLat(135.28771263411198, 34.41939178866937), Pair(190.0f, 1166.25f)),
+            Pair(Point.fromLngLat(135.2917818704107, 34.41631644691015), Pair(190.0f, 1178.125f)),
+            Pair(Point.fromLngLat(135.296376, 34.413709), Pair(190.0f, 1193.0f)),
+
+            Pair(Point.fromLngLat(135.30153571191934, 34.415502500803086), Pair(205.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.30698698267128, 34.41623354196272), Pair(220.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.31254604370773, 34.4171395936453), Pair(235.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.31770275656007, 34.41913698290124), Pair(250.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.32209657672965, 34.42211206480083), Pair(265.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.3261666280631, 34.425452525714384), Pair(280.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.32978210516993, 34.42912703967447), Pair(295.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.33271005055866, 34.432921488449374), Pair(310.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.33541607553065, 34.436993669875044), Pair(325.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.3375814382039, 34.44120845855389), Pair(340.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.34233757614805, 34.443772467101724), Pair(355.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.34757166120423, 34.44538980221373), Pair(370.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.35172072901352, 34.448411693460926), Pair(385.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.35491999308022, 34.45231132854109), Pair(400.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.35781935472207, 34.4561750433119), Pair(415.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.36071005673364, 34.46024379720794), Pair(430.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.3638212126413, 34.46419186540004), Pair(445.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.367274, 34.467891), Pair(460.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.372093, 34.470181), Pair(475.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.37556553078954, 34.47393702541184), Pair(490.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.37763756696697, 34.478165135886364), Pair(505.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.37727658607497, 34.482674474856374), Pair(520.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.37846799417682, 34.48708282150821), Pair(535.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.37987166989663, 34.49167308855809), Pair(550.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.38125883185123, 34.496287127330405), Pair(565.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.38411024257616, 34.50033566876203), Pair(580.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.38836542646942, 34.5031906513975), Pair(595.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.3924609932627, 34.506199709364644), Pair(610.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.3972101816279, 34.5086433829396), Pair(625.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.4027267055564, 34.509666720826445), Pair(640.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.40787501454807, 34.51170531036246), Pair(655.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.41265382949538, 34.5138982810049), Pair(670.0f, 1193.0f)),
+            Pair(Point.fromLngLat(135.4166698623002, 34.51715286622886), Pair(685.0f, 1193.0f)),
+
+            Pair(Point.fromLngLat(135.42004521533246, 34.52091406849284), Pair(690.0f, 1188.6875f)),
+            Pair(Point.fromLngLat(135.42372098475894, 34.524549437135775), Pair(695.0f, 1183.375f)),
+            Pair(Point.fromLngLat(135.42613014645548, 34.528744338318134), Pair(700.0f, 1178.0625f)),
+            Pair(Point.fromLngLat(135.428662, 34.532777), Pair(705.0f, 1172.75f)),
+            Pair(Point.fromLngLat(135.431641957322, 34.536730710529525), Pair(710.0f, 1167.4375f)),
+            Pair(Point.fromLngLat(135.43440708500913, 34.54061624668257), Pair(715.0f, 1162.125f)),
+            Pair(Point.fromLngLat(135.43693382241486, 34.544743206388254), Pair(720.0f, 1159.8125f)),
+            Pair(Point.fromLngLat(135.43980844776218, 34.5487473008449), Pair(725.0f, 1154.5f)),
+            Pair(Point.fromLngLat(135.4437509959282, 34.55204672901478), Pair(730.0f, 1150.1875f)),
+            Pair(Point.fromLngLat(135.4453917319862, 34.55643045317768), Pair(735.0f, 1144.875f)),
+            Pair(Point.fromLngLat(135.44884249890123, 34.56006836407924), Pair(740.0f, 1139.5625f)),
+            Pair(Point.fromLngLat(135.452953, 34.563207), Pair(745.0f, 1128.25f)),
+            Pair(Point.fromLngLat(135.45539642245308, 34.56730267405715), Pair(750.0f, 1133.9375f)),
+            Pair(Point.fromLngLat(135.45706721763298, 34.57168874601794), Pair(755.0f, 1127.625f)),
+            Pair(Point.fromLngLat(135.45859594523313, 34.576176275243675), Pair(760.0f, 1120.3125f)),
+            Pair(Point.fromLngLat(135.45800853419814, 34.58073834209151), Pair(765.0f, 1115.0f)),
+            Pair(Point.fromLngLat(135.46075849587007, 34.58480882568937), Pair(770.0f, 1109.6875f)),
+            Pair(Point.fromLngLat(135.46355467379263, 34.588697943636475), Pair(775.0f, 1104.375f)),
+            Pair(Point.fromLngLat(135.46332605505924, 34.5933506955903), Pair(780.0f, 1101.0625f)),
+            Pair(Point.fromLngLat(135.462748, 34.597988), Pair(785.0f, 1089.75f)),
+            Pair(Point.fromLngLat(135.461395, 34.602538), Pair(790.0f, 1082.4375f)),
+            Pair(Point.fromLngLat(135.45759276884212, 34.605769057839105), Pair(795.0f, 1077.125f)),
+            Pair(Point.fromLngLat(135.4532119777108, 34.608573951285244), Pair(800.0f, 1071.8125f)),
+            Pair(Point.fromLngLat(135.44794307119042, 34.61045284132922), Pair(805.0f, 1066.5f)),
+            Pair(Point.fromLngLat(135.44252060051764, 34.61196288140486), Pair(810.0f, 1061.1875f)),
+            Pair(Point.fromLngLat(135.43716885965827, 34.61344655043803), Pair(815.0f, 1055.875f)),
+            Pair(Point.fromLngLat(135.43541857873296, 34.617869471779855), Pair(820.0f, 1050.5625f)),
+            Pair(Point.fromLngLat(135.43366052803458, 34.62238046669404), Pair(825.0f, 1044.25f)),
+            Pair(Point.fromLngLat(135.4320750816063, 34.62669964452119), Pair(830.0f, 1039.9375f)),
+            Pair(Point.fromLngLat(135.434718, 34.630798), Pair(835.0f, 1034.625f)),
+            Pair(Point.fromLngLat(135.43422546876656, 34.63542926719152), Pair(840.0f, 1029.3125f)),
+            Pair(Point.fromLngLat(135.4351268908143, 34.64010685015972), Pair(845.0f, 1024.0f)),
+
+            Pair(Point.fromLngLat(135.43767350436244, 34.644094148606506), Pair(845.0f, 1015.0f)),
+            Pair(Point.fromLngLat(135.44034202514675, 34.64827498171898), Pair(845.0f, 1010.0f)),
+            Pair(Point.fromLngLat(135.442021, 34.652583), Pair(845.0f, 1005.0f)),
+
+
+        )
     }
 
     private val pointToPixelMap: List<Pair<Point, Pair<Float, Float>>> by lazy {
