@@ -4,12 +4,12 @@ import com.mapbox.geojson.Point
 import org.junit.Assert.*
 import org.junit.Test
 
-class LocationTreeTest {
+class LocationSearchTreeTest {
 
 
     @Test
     fun sizeTest() {
-        val tree = LocationTree().also {
+        val tree = LocationSearchTree().also {
             it.addAll(testPoints.take(3))
         }
 
@@ -20,7 +20,7 @@ class LocationTreeTest {
 
     @Test
     fun getNearestNeighborTest() {
-        val tree = LocationTree().also {
+        val tree = LocationSearchTree().also {
             it.addAll(testPoints)
         }
         val expected = Point.fromLngLat(135.404270772023, 34.695821784837534)

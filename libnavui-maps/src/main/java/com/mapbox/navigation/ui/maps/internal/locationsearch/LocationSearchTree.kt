@@ -8,7 +8,7 @@ import com.mapbox.navigation.ui.maps.util.CacheResultUtils.cacheResult
 import com.mapbox.turf.TurfConstants
 import com.mapbox.turf.TurfMeasurement
 
-class LocationTree(private val capacity: Int = 32, private val distanceCalculationCacheCapacity: Int = 500) {
+class LocationSearchTree(private val capacity: Int = 32, private val distanceCalculationCacheCapacity: Int = 500) {
 
     private var rootNode: LocationTreeNode? = null
     private val distanceCalculationCache : LruCache<
@@ -79,7 +79,7 @@ class LocationTree(private val capacity: Int = 32, private val distanceCalculati
     fun getDistanceCalculationCacheMisses() = distanceCalculationCache.missCount()
 
     private val distanceCalcFunction = { point1: Point, point2: Point ->
-        Log.e("foobar", "distance cache hit count = ${distanceCalculationCache.hitCount()}, miss count = ${distanceCalculationCache.missCount()} size is ${distanceCalculationCache.size()}")
+        //Log.e("foobar", "distance cache hit count = ${distanceCalculationCache.hitCount()}, miss count = ${distanceCalculationCache.missCount()} size is ${distanceCalculationCache.size()}")
         TurfMeasurement.distance(point1, point2, TurfConstants.UNIT_METERS)
     }.cacheResult(distanceCalculationCache)
 }

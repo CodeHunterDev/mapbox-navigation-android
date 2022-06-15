@@ -62,7 +62,7 @@ import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.examples.core.databinding.LayoutActivityRoutelineExampleBinding
 import com.mapbox.navigation.ui.maps.NavigationStyles
-import com.mapbox.navigation.ui.maps.internal.locationsearch.LocationTree
+import com.mapbox.navigation.ui.maps.internal.locationsearch.LocationSearchTree
 import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
 import com.mapbox.navigation.ui.maps.route.RouteLayerConstants.TOP_LEVEL_ROUTE_LINE_LAYER_ID
 import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowApi
@@ -130,8 +130,8 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
         viewBinding.mapView.camera
     }
 
-    private val locationTree by lazy {
-        LocationTree().also {
+    private val locationSearchTree by lazy {
+        LocationSearchTree().also {
             it.addAll(preRecordedPoints)
         }
     }
@@ -535,10 +535,21 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
             // }
 
             Log.e("foobar", "touchpoint is $point")
-            locationTree.getNearestNeighbor(point)?.apply {
-                Log.e("foobar", "my closest point = $this")
-                highLightPointOnMap(this)
+            job.scope.launch(Dispatchers.Main) {
+                val start = System.currentTimeMillis()
+                val nearestDef = async { locationSearchTree.getNearestNeighbor(point) }
+                nearestDef.await()?.apply {
+                    Log.e("foobar", "my closest point = $this time take is ${System.currentTimeMillis() - start}")
+                    highLightPointOnMap(this)
+                }
             }
+
+            // job.scope.launch(Dispatchers.Main) {
+            //     val start2 = System.currentTimeMillis()
+            //     getClosestPixelCoords(point)?.apply {
+            //         Log.e("foobar", "getClosestPixelCoords point = $this time take is ${System.currentTimeMillis() - start2}")
+            //     }
+            // }
         }
         false
     }
@@ -1048,7 +1059,7 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
 
     private suspend fun getClosestPixelCoords(point: Point): Pair<Float, Float>? {
         return coroutineScope {
-            val startTime = System.currentTimeMillis()
+            //val startTime = System.currentTimeMillis()
             val distancesDef = async(Dispatchers.Default) {
                 pointToPixelMap.map {
                     val dist = TurfMeasurement.distance(point, it.first, TurfConstants.UNIT_METERS)
@@ -1062,13 +1073,13 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
             //     Pair(dist, it.second)
             // }, job.scope)
 
-            Log.e("foobar", "Time to get closest = ${System.currentTimeMillis() - startTime}")
+            //Log.e("foobar", "Time to get closest pixel coords = ${System.currentTimeMillis() - startTime}")
             val distances = distancesDef.await()
             val closestCoordsDef = async(Dispatchers.Default) {
                 distances.minByOrNull { it.first }?.second
             }
             closestCoordsDef.await()?.also {
-                Log.e("foobar", "returning coords x=${it.first} y=${it.second}")
+                //Log.e("foobar", "returning coords x=${it.first} y=${it.second}")
             }
         }
     }
