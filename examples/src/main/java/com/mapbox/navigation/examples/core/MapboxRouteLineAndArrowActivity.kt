@@ -367,7 +367,7 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
         val canvas = Canvas(mapImage)
         val paint = Paint().apply {
             isAntiAlias = true
-            color = Color.parseColor("#55ffcc00")
+            color = Color.parseColor("#ffcc00")
             style = Paint.Style.FILL
         }
 
@@ -375,7 +375,7 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
         val yShim = 0//742
 
         canvas.drawBitmap(mapImage, 0f, 0f, null)
-        canvas.drawCircle(x, yShim + y, 50f, paint)
+        canvas.drawCircle(x, yShim + y, 20f, paint)
         viewBinding.mapImage.setImageBitmap(mapImage)
 
         //Log.e("foobar", "imageHeight div2 is ${viewBinding.mapImage.height / 2} y = $y")
