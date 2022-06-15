@@ -74,6 +74,10 @@ class LocationTree(private val capacity: Int = 32, private val distanceCalculati
         }
     }
 
+    fun getDistanceCalculationCacheHits() = distanceCalculationCache.hitCount()
+
+    fun getDistanceCalculationCacheMisses() = distanceCalculationCache.missCount()
+
     private val distanceCalcFunction = { point1: Point, point2: Point ->
         Log.e("foobar", "distance cache hit count = ${distanceCalculationCache.hitCount()}, miss count = ${distanceCalculationCache.missCount()} size is ${distanceCalculationCache.size()}")
         TurfMeasurement.distance(point1, point2, TurfConstants.UNIT_METERS)
