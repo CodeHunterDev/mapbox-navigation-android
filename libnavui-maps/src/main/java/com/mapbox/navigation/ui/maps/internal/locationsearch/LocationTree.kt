@@ -1,10 +1,23 @@
 package com.mapbox.navigation.ui.maps.internal.locationsearch
 
+import android.util.Log
+import android.util.LruCache
 import com.mapbox.geojson.Point
+import com.mapbox.navigation.ui.maps.util.CacheResultUtils
+import com.mapbox.navigation.ui.maps.util.CacheResultUtils.cacheResult
+import com.mapbox.turf.TurfConstants
+import com.mapbox.turf.TurfMeasurement
 
-class LocationTree(private val capacity: Int = 5) {
+class LocationTree(private val capacity: Int = 32) {
 
     private var rootNode: LocationTreeNode? = null
+    private val distanceCalculationCache : LruCache<
+        CacheResultUtils.CacheResultKey2<
+            Point,
+            Point,
+            Double
+            >,
+        Double> by lazy { LruCache(500) }
 
     fun size() = rootNode?.size() ?: 0
 
@@ -16,7 +29,7 @@ class LocationTree(private val capacity: Int = 5) {
 
     fun addAll(points: List<Point>) {
         if (rootNode == null) {
-            rootNode = LocationTreeNode(points.toMutableList(), capacity)
+            rootNode = LocationTreeNode(points.toMutableList(), capacity, distanceCalcFunction)
         } else {
             if (points.isNotEmpty()) {
                 points.forEach {
@@ -46,6 +59,7 @@ class LocationTree(private val capacity: Int = 5) {
 
     fun clear() {
         rootNode = null
+        distanceCalculationCache.evictAll()
     }
 
     fun getNearestNeighbor(target: Point) = getNearestNeighbors(target, 1).firstOrNull()
@@ -59,4 +73,9 @@ class LocationTree(private val capacity: Int = 5) {
             collector.toSortedList()
         }
     }
+
+    private val distanceCalcFunction = { point1: Point, point2: Point ->
+        Log.e("foobar", "distance cache hit count = ${distanceCalculationCache.hitCount()}, miss count = ${distanceCalculationCache.missCount()} size is ${distanceCalculationCache.size()}")
+        TurfMeasurement.distance(point1, point2, TurfConstants.UNIT_METERS)
+    }.cacheResult(distanceCalculationCache)
 }

@@ -36,7 +36,7 @@ class NearestNeighborCollector(val queryPoint: Point, private val capacity: Int)
         }
 
         if (pointAdded && priorityQueue.isNotEmpty()) {
-            distanceToFarthestPoint = TurfMeasurement.distance(queryPoint, priorityQueue.peek()!!)
+            distanceToFarthestPoint = TurfMeasurement.distance(queryPoint, priorityQueue.peek()!!, TurfConstants.UNIT_METERS)
         }
     }
 

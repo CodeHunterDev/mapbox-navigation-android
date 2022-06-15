@@ -1,13 +1,20 @@
 package com.mapbox.navigation.ui.maps.internal.locationsearch
 
 import com.mapbox.geojson.Point
+import com.mapbox.turf.TurfConstants
 import com.mapbox.turf.TurfMeasurement
+import java.util.concurrent.CopyOnWriteArrayList
 
-class LocationTreeNode(private val points: MutableList<Point>, private val capacity: Int = 5) {
+class LocationTreeNode(private val points: MutableList<Point>, private val capacity: Int = 32, private val distanceCalcFunction: (Point, Point) ->  Double) {
 
     private val vantagePoint: Point by lazy {
         points.random()
     }
+
+    private val sortedPoints = {
+        points.sortedBy { distanceCalcFunction(vantagePoint, it) }
+    }
+
     private var threshold = 0.0
 
     private var closer: LocationTreeNode? = null
@@ -31,12 +38,12 @@ class LocationTreeNode(private val points: MutableList<Point>, private val capac
             }
         } else {
             if (points.size > capacity) {
-                threshold = GeoSearchingUtil.selectThreshold(vantagePoint, points)
+                threshold = distanceCalcFunction(vantagePoint, sortedPoints()[points.size / 2])
                 when (val firstPastThreshold =
-                    GeoSearchingUtil.partitionPoints(vantagePoint, points, threshold)) {
+                    partitionPoints(vantagePoint, sortedPoints(), threshold)) {
                     in 0 .. Int.MAX_VALUE -> {
-                        closer = LocationTreeNode(points.subList(0, firstPastThreshold), capacity)
-                        farther = LocationTreeNode(points.subList(firstPastThreshold, points.size), capacity)
+                        closer = LocationTreeNode(sortedPoints().subList(0, firstPastThreshold).toMutableList(), capacity, distanceCalcFunction)
+                        farther = LocationTreeNode(sortedPoints().subList(firstPastThreshold, points.size).toMutableList(), capacity, distanceCalcFunction)
                         points.clear()
                     }
                     else -> {
@@ -73,13 +80,13 @@ class LocationTreeNode(private val points: MutableList<Point>, private val capac
     }
 
     fun collectNearestNeighbors(collector: NearestNeighborCollector) {
-        if (points.isNotEmpty()) {
+        if (sortedPoints().isEmpty()) {
             val firstNodeSearched = getChildNodeForPoint(collector.queryPoint)
             firstNodeSearched?.collectNearestNeighbors(collector)
 
-            val distanceFromVantagePointToQueryPoint = TurfMeasurement.distance(vantagePoint, collector.queryPoint)
+            val distanceFromVantagePointToQueryPoint = distanceCalcFunction(vantagePoint, collector.queryPoint) //TurfMeasurement.distance(vantagePoint, collector.queryPoint, TurfConstants.UNIT_METERS)
             val distanceFromQueryPointToFarthestPoint = if (collector.getFarthestPoint() != null) {
-                TurfMeasurement.distance(collector.queryPoint, collector.getFarthestPoint()!!)
+                distanceCalcFunction(collector.queryPoint, collector.getFarthestPoint()!!)
             } else {
                 Double.MAX_VALUE
             }
@@ -98,14 +105,14 @@ class LocationTreeNode(private val points: MutableList<Point>, private val capac
                 }
             }
         } else {
-            points.forEach {
+            sortedPoints().forEach {
                 collector.offerPoint(it)
             }
         }
     }
 
     private fun getChildNodeForPoint(point: Point): LocationTreeNode? {
-        return if (TurfMeasurement.distance(vantagePoint, point)  <= threshold) {
+        return if (distanceCalcFunction(vantagePoint, point)  <= threshold) {
             closer
         } else {
             farther
@@ -121,4 +128,9 @@ class LocationTreeNode(private val points: MutableList<Point>, private val capac
         }
     }
 
+    private fun partitionPoints(vantagePoint: Point, points: List<Point>, threshold: Double): Int {
+        return points.map {
+            Pair(it, distanceCalcFunction(vantagePoint, it))
+        }.sortedBy { it.second }.indexOfFirst { it.second > threshold }
+    }
 }

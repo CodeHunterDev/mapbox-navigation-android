@@ -23,9 +23,10 @@ class LocationTreeTest {
         val tree = LocationTree().also {
             it.addAll(testPoints)
         }
-        val expected = Point.fromLngLat(135.428662, 34.532777)
+        val expected = Point.fromLngLat(135.404270772023, 34.695821784837534)
+        val searchPoint = Point.fromLngLat(135.42692046495102, 34.7332447631798)
 
-        val nearest = tree.getNearestNeighbor(Point.fromLngLat(135.628662, 34.732777))
+        val nearest = tree.getNearestNeighbor(searchPoint)
 
         assertEquals(expected, nearest)
     }

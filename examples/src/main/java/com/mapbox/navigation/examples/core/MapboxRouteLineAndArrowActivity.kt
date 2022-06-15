@@ -6,10 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Matrix
 import android.graphics.Paint
-import android.graphics.Rect
-import android.graphics.RectF
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
@@ -20,7 +17,6 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import com.mapbox.android.core.FileUtils
 import com.mapbox.android.core.location.LocationEngineCallback
 import com.mapbox.android.core.location.LocationEngineResult
 import com.mapbox.android.gestures.Utils
@@ -35,7 +31,6 @@ import com.mapbox.maps.MapboxMap
 import com.mapbox.maps.Style
 import com.mapbox.maps.extension.observable.eventdata.MapLoadingErrorEventData
 import com.mapbox.maps.extension.style.layers.generated.CircleLayer
-import com.mapbox.maps.extension.style.layers.properties.generated.Visibility
 import com.mapbox.maps.extension.style.sources.generated.GeoJsonSource
 import com.mapbox.maps.extension.style.sources.generated.geoJsonSource
 import com.mapbox.maps.extension.style.sources.getSource
@@ -54,7 +49,6 @@ import com.mapbox.navigation.base.options.NavigationOptions
 import com.mapbox.navigation.base.route.RouterCallback
 import com.mapbox.navigation.base.route.RouterFailure
 import com.mapbox.navigation.base.route.RouterOrigin
-import com.mapbox.navigation.base.trip.model.RouteProgress
 import com.mapbox.navigation.base.utils.DecodeUtils.completeGeometryToLineString
 import com.mapbox.navigation.core.MapboxNavigationProvider
 import com.mapbox.navigation.core.directions.session.RoutesObserver
@@ -68,6 +62,7 @@ import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.examples.core.databinding.LayoutActivityRoutelineExampleBinding
 import com.mapbox.navigation.ui.maps.NavigationStyles
+import com.mapbox.navigation.ui.maps.internal.locationsearch.LocationTree
 import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
 import com.mapbox.navigation.ui.maps.route.RouteLayerConstants.TOP_LEVEL_ROUTE_LINE_LAYER_ID
 import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowApi
@@ -84,8 +79,6 @@ import com.mapbox.navigation.utils.internal.ifNonNull
 import com.mapbox.navigation.utils.internal.parallelMap
 import com.mapbox.turf.TurfConstants
 import com.mapbox.turf.TurfMeasurement
-import com.mapbox.turf.TurfMisc
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -135,6 +128,12 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
 
     private val mapCamera by lazy {
         viewBinding.mapView.camera
+    }
+
+    private val locationTree by lazy {
+        LocationTree().also {
+            it.addAll(preRecordedPoints)
+        }
     }
 
     // RouteLine: Route line related colors can be customized via the RouteLineColorResources.
@@ -510,32 +509,37 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
             // Since this listener is reacting to all map touches, if the primary and alternative
             // routes aren't visible it's assumed the touch isn't related to selecting an
             // alternative route.
-            val primaryLineVisibility = routeLineView.getPrimaryRouteVisibility(this)
-            val alternativeRouteLinesVisibility = routeLineView.getAlternativeRoutesVisibility(this)
-            if (
-                primaryLineVisibility == Visibility.VISIBLE &&
-                alternativeRouteLinesVisibility == Visibility.VISIBLE
-            ) {
-                routeLineApi.findClosestRoute(
-                    point,
-                    mapboxMap,
-                    routeClickPadding
-                ) { result ->
-                    result.onValue { value ->
-                        if (value.route != routeLineApi.getPrimaryRoute()) {
-                            val reOrderedRoutes = routeLineApi.getRoutes()
-                                .filter { it != value.route }
-                                .toMutableList()
-                                .also {
-                                    it.add(0, value.route)
-                                }
-                            mapboxNavigation.setRoutes(reOrderedRoutes)
-                        }
-                    }
-                }
+            // val primaryLineVisibility = routeLineView.getPrimaryRouteVisibility(this)
+            // val alternativeRouteLinesVisibility = routeLineView.getAlternativeRoutesVisibility(this)
+            // if (
+            //     primaryLineVisibility == Visibility.VISIBLE &&
+            //     alternativeRouteLinesVisibility == Visibility.VISIBLE
+            // ) {
+            //     routeLineApi.findClosestRoute(
+            //         point,
+            //         mapboxMap,
+            //         routeClickPadding
+            //     ) { result ->
+            //         result.onValue { value ->
+            //             if (value.route != routeLineApi.getPrimaryRoute()) {
+            //                 val reOrderedRoutes = routeLineApi.getRoutes()
+            //                     .filter { it != value.route }
+            //                     .toMutableList()
+            //                     .also {
+            //                         it.add(0, value.route)
+            //                     }
+            //                 mapboxNavigation.setRoutes(reOrderedRoutes)
+            //             }
+            //         }
+            //     }
+            // }
+
+            Log.e("foobar", "touchpoint is $point")
+            locationTree.getNearestNeighbor(point)?.apply {
+                Log.e("foobar", "my closest point = $this")
+                highLightPointOnMap(this)
             }
         }
-
         false
     }
 
