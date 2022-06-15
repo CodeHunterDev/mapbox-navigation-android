@@ -8,7 +8,7 @@ import com.mapbox.navigation.ui.maps.util.CacheResultUtils.cacheResult
 import com.mapbox.turf.TurfConstants
 import com.mapbox.turf.TurfMeasurement
 
-class LocationTree(private val capacity: Int = 32) {
+class LocationTree(private val capacity: Int = 32, private val distanceCalculationCacheCapacity: Int = 500) {
 
     private var rootNode: LocationTreeNode? = null
     private val distanceCalculationCache : LruCache<
@@ -17,7 +17,7 @@ class LocationTree(private val capacity: Int = 32) {
             Point,
             Double
             >,
-        Double> by lazy { LruCache(500) }
+        Double> by lazy { LruCache(distanceCalculationCacheCapacity) }
 
     fun size() = rootNode?.size() ?: 0
 
