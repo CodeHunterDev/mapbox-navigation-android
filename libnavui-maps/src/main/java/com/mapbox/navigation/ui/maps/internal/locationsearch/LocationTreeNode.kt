@@ -2,7 +2,11 @@ package com.mapbox.navigation.ui.maps.internal.locationsearch
 
 import com.mapbox.geojson.Point
 
-class LocationTreeNode(private val points: MutableList<Point>, private val capacity: Int = 32, private val distanceCalcFunction: (Point, Point) ->  Double) {
+class LocationTreeNode(
+    private val points: MutableList<Point>,
+    private val capacity: Int = 32,
+    private val distanceCalcFunction: (Point, Point) ->  Double
+) {
 
     private val vantagePoint: Point by lazy {
         points.random()
@@ -20,7 +24,7 @@ class LocationTreeNode(private val points: MutableList<Point>, private val capac
     internal fun initializeNode() {
         if (points.isEmpty()) {
             if (closer?.size() == 0 || farther?.size() == 0) {
-                // One of the child nodes has become empty, and needs to be pruned.
+                // Prune empty child nodes.
                 addAllPointsToCollection(points)
                 closer = null
                 farther = null
