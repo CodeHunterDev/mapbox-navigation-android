@@ -62,6 +62,7 @@ import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.examples.core.databinding.LayoutActivityRoutelineExampleBinding
 import com.mapbox.navigation.ui.maps.NavigationStyles
+import com.mapbox.navigation.ui.maps.internal.locationsearch.EnhancedPoint
 import com.mapbox.navigation.ui.maps.internal.locationsearch.LocationSearchTree
 import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
 import com.mapbox.navigation.ui.maps.route.RouteLayerConstants.TOP_LEVEL_ROUTE_LINE_LAYER_ID
@@ -850,6 +851,20 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
         InternalJobControlFactory.createDefaultScopeJobControl()
     }
 
+    private val pointToPixelForInterpolation: List<EnhancedPoint> by lazy {
+        listOf(
+            EnhancedPoint.KeyPoint(Point.fromLngLat(135.26354888814373, 34.438500471880225), Pair(190.0f, 1095.0f)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.26729722216783, 34.43489747681673)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.27143269522125, 34.43169180777495)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.27550312908502, 34.428617005239126)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.2795732634925, 34.42554206785929)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.28364309848703, 34.422466995660905)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.28771263411198, 34.41939178866937)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.2917818704107, 34.41631644691015)),
+            EnhancedPoint.KeyPoint(Point.fromLngLat(135.296376, 34.413709), Pair(190.0f, 1193.0f))
+        )
+    }
+
     private val pointToPixelMapRevised: List<Pair<Point, Pair<Float, Float>>> by lazy {
         listOf(
             Pair(Point.fromLngLat(135.26354888814373, 34.438500471880225), Pair(190.0f, 1095.0f)),
@@ -1295,6 +1310,38 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
     private fun printLocationRecordings() {
         locationRecordings.forEach {
             Log.e("foobar", "Point.fromLngLat(${it.longitude()}, ${it.latitude()}),")
+        }
+    }
+
+    private fun interpolateScreenCoordinates(pointToPixelList: List<EnhancedPoint>) {
+        var position = 0
+        val nextKeyPoint = getNextKeyPoint(position, pointToPixelList)
+        val followingKeyPoint = getNextKeyPoint(position + 1, pointToPixelList)
+        ifNonNull(nextKeyPoint, followingKeyPoint) { nPoint, fPoint ->
+            val xDelta = (fPoint.second.getChmCoordinates()?.first ?: 0f) - (nPoint.second.getChmCoordinates()?.first ?: 0f)
+            val yDelta = (fPoint.second.getChmCoordinates()?.second ?: 0f) - (nPoint.second.getChmCoordinates()?.second ?: 0f)
+            val fillerRange = fPoint.first - nPoint.first
+            var xPoint = (nPoint.second.getChmCoordinates()?.first ?: 0f) + xDelta
+            var yPoint = (nPoint.second.getChmCoordinates()?.second ?: 0f) + yDelta
+
+            repeat(fillerRange) { index ->
+                val item = pointToPixelList[index]
+                if (item is EnhancedPoint.MapPoint) {
+                    item.setChmCoordinates(Pair(xPoint, yPoint))
+                }
+
+                xPoint += xDelta
+                yPoint += yDelta
+            }
+        }
+    }
+
+    private fun getNextKeyPoint(offset: Int, pointToPixelList: List<EnhancedPoint>): Pair<Int, EnhancedPoint>? {
+        val nextKeyPointIndex = pointToPixelList.drop(offset).indexOfFirst { it is EnhancedPoint.KeyPoint }
+        return if (nextKeyPointIndex >= 0) {
+            Pair(nextKeyPointIndex, pointToPixelList[nextKeyPointIndex])
+        } else {
+            null
         }
     }
 }

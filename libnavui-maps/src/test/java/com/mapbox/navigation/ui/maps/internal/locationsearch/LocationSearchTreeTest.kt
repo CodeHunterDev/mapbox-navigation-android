@@ -1,6 +1,7 @@
 package com.mapbox.navigation.ui.maps.internal.locationsearch
 
 import com.mapbox.geojson.Point
+import com.mapbox.navigation.utils.internal.ifNonNull
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -29,6 +30,65 @@ class LocationSearchTreeTest {
         val nearest = tree.getNearestNeighbor(searchPoint)
 
         assertEquals(expected, nearest)
+    }
+
+    @Test
+    fun fooTest() {
+        interpolateScreenCoordinates(pointToPixelForInterpolation)
+    }
+
+    private val pointToPixelForInterpolation: List<EnhancedPoint> by lazy {
+        listOf(
+            EnhancedPoint.KeyPoint(Point.fromLngLat(135.26354888814373, 34.438500471880225), Pair(190.0f, 1095.0f)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.26729722216783, 34.43489747681673)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.27143269522125, 34.43169180777495)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.27550312908502, 34.428617005239126)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.2795732634925, 34.42554206785929)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.28364309848703, 34.422466995660905)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.28771263411198, 34.41939178866937)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.2917818704107, 34.41631644691015)),
+            EnhancedPoint.KeyPoint(Point.fromLngLat(135.296376, 34.413709), Pair(190.0f, 1193.0f))
+        )
+    }
+
+    private fun interpolateScreenCoordinates(pointToPixelList: List<EnhancedPoint>) {
+        val position = 0
+        var nextKeyPoint = getNextKeyPoint(position, pointToPixelList)
+        var followingKeyPoint = getNextKeyPoint(position + 1, pointToPixelList)
+
+        //while nextKeyPoint != null && followingKeyPoint != null
+        ifNonNull(nextKeyPoint, followingKeyPoint) { nPoint, fPoint ->
+            val fillerRange = (fPoint.first + 1) - nPoint.first
+            val xDelta = ((fPoint.second.getChmCoordinates()?.first ?: 0f) - (nPoint.second.getChmCoordinates()?.first ?: 0f)) / fillerRange
+            val yDelta = ((fPoint.second.getChmCoordinates()?.second ?: 0f) - (nPoint.second.getChmCoordinates()?.second ?: 0f)) / fillerRange
+
+            var xPoint = (nPoint.second.getChmCoordinates()?.first ?: 0f) + xDelta
+            var yPoint = (nPoint.second.getChmCoordinates()?.second ?: 0f) + yDelta
+
+            for (index in nPoint.first + 1 until fPoint.first) {
+                val item = pointToPixelList[index]
+                if (item is EnhancedPoint.MapPoint) {
+                    item.setChmCoordinates(Pair(xPoint, yPoint))
+                }
+
+                xPoint += xDelta
+                yPoint += yDelta
+            }
+        }
+
+        nextKeyPoint = followingKeyPoint
+        followingKeyPoint = getNextKeyPoint(nextKeyPoint?.first ?: pointToPixelList.lastIndex, pointToPixelList)
+        //end while
+
+    }
+
+    private fun getNextKeyPoint(offset: Int, pointToPixelList: List<EnhancedPoint>): Pair<Int, EnhancedPoint>? {
+        val nextKeyPointIndex = pointToPixelList.drop(offset).indexOfFirst { it is EnhancedPoint.KeyPoint }
+        return if (nextKeyPointIndex >= 0) {
+            Pair(nextKeyPointIndex + offset, pointToPixelList[nextKeyPointIndex + offset])
+        } else {
+            null
+        }
     }
 
     private val testPoints = listOf(
