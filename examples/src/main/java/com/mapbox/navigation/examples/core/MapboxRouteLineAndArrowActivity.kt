@@ -583,8 +583,23 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
                     updateCHMImage(this.first, this.second)
                 }
             }
+
+            job.scope.launch(Dispatchers.Main) {
+                //val start = System.currentTimeMillis()
+                val nearestDef = async { locationSearchTree.getNearestNeighbor(currentLocPoint) }
+                nearestDef.await()?.apply {
+                    //Log.e("foobar", "my closest point = $this time take is ${System.currentTimeMillis() - start}")
+                    highLightPointOnMap(this)
+
+                    //val misses = locationSearchTree.getDistanceCalculationCacheMisses()
+                    //val cacheMissDelta = misses - cacheMisses
+                    //cacheMisses = misses
+                    //Log.e("foobar", "cache hits = ${locationSearchTree.getDistanceCalculationCacheHits()}, miss delta is = $cacheMissDelta")
+                }
+            }
         }
     }
+    //var cacheMisses = 0
 
     private fun updateCamera(location: Location) {
         val mapAnimationOptionsBuilder = MapAnimationOptions.Builder()
