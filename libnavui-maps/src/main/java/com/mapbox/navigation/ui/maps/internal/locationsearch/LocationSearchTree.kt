@@ -1,6 +1,5 @@
 package com.mapbox.navigation.ui.maps.internal.locationsearch
 
-import android.util.Log
 import android.util.LruCache
 import com.mapbox.geojson.Point
 import com.mapbox.navigation.ui.maps.util.CacheResultUtils

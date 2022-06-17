@@ -1922,7 +1922,7 @@ class MapboxRouteLineUtilsTest {
     @Test
     fun temp() = runBlockingTest {
 
-        val route = loadRoute("temp-delete-me-route.json")
+        val route = loadRoute("temp-delete-me-route2.json")
         val routeGeometry = route.completeGeometryToLineString()
         val newPoints = mutableListOf<Point>(routeGeometry.coordinates().first())
 

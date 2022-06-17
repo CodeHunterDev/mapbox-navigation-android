@@ -24,6 +24,7 @@ import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
+import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.EdgeInsets
@@ -31,6 +32,7 @@ import com.mapbox.maps.MapboxMap
 import com.mapbox.maps.Style
 import com.mapbox.maps.extension.observable.eventdata.MapLoadingErrorEventData
 import com.mapbox.maps.extension.style.layers.generated.CircleLayer
+import com.mapbox.maps.extension.style.layers.generated.LineLayer
 import com.mapbox.maps.extension.style.sources.generated.GeoJsonSource
 import com.mapbox.maps.extension.style.sources.generated.geoJsonSource
 import com.mapbox.maps.extension.style.sources.getSource
@@ -64,6 +66,8 @@ import com.mapbox.navigation.examples.core.databinding.LayoutActivityRoutelineEx
 import com.mapbox.navigation.ui.maps.NavigationStyles
 import com.mapbox.navigation.ui.maps.internal.locationsearch.EnhancedPoint
 import com.mapbox.navigation.ui.maps.internal.locationsearch.LocationSearchTree
+import com.mapbox.navigation.ui.maps.internal.locationsearch.LocationSearchUtil
+import com.mapbox.navigation.ui.maps.internal.locationsearch.XB03PointToPixelMap
 import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
 import com.mapbox.navigation.ui.maps.route.RouteLayerConstants.TOP_LEVEL_ROUTE_LINE_LAYER_ID
 import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowApi
@@ -133,7 +137,7 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
 
     private val locationSearchTree by lazy {
         LocationSearchTree().also {
-            it.addAll(preRecordedPoints)
+            it.addAll(preRecordedPoints2)
         }
     }
 
@@ -644,13 +648,16 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
 
                 initPointLayer(style)
                 initPointHighlightLayer(style)
+                initBoundsLayer(style)
+                showBounds()
+
                 //addPointToPixelMapPoints(style)
                 //addPointToPixelMapPoints(recordedPoints)
-                addPointToPixelMapPoints(preRecordedPoints)
+                addPointToPixelMapPoints(preRecordedPoints2)
 
-                val pointToHighlightIndex = 76
-                highLightPointOnMap(preRecordedPoints[pointToHighlightIndex])
-                Log.e("foobar", "highlighted point is at ${preRecordedPoints[pointToHighlightIndex]}")
+                val pointToHighlightIndex = 0
+                highLightPointOnMap(preRecordedPoints2[pointToHighlightIndex])
+                Log.e("foobar", "highlighted point is at ${preRecordedPoints2[pointToHighlightIndex]}")
 
                 redCircleXPos = interpolatedPixelMap.last().second.first
                 redCircleYPos = interpolatedPixelMap.last().second.second
@@ -819,7 +826,7 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
         route.completeGeometryToLineString().coordinates().first()
 
     fun loadRoute(): DirectionsRoute {
-        val routeAsJson = readRawFileText(this, R.raw.temp_delete_me_route)
+        val routeAsJson = readRawFileText(this, R.raw.temp_delete_me_route2)
         return DirectionsRoute.fromJson(routeAsJson)
     }
 
@@ -857,128 +864,153 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
         InternalJobControlFactory.createDefaultScopeJobControl()
     }
 
-
-
     private val interpolatedPixelMap: List<Pair<Point, Pair<Float, Float>>>  by lazy {
-        listOf(
-            Pair(Point.fromLngLat(135.26354888814373, 34.438500471880225), Pair(190.0f, 1115.0f)),
-            Pair(Point.fromLngLat(135.26729722216783, 34.43489747681673), Pair(190.0f, 1123.6666f)),
-            Pair(Point.fromLngLat(135.27143269522125, 34.43169180777495), Pair(190.0f, 1132.3333f)),
-            Pair(Point.fromLngLat(135.27550312908502, 34.428617005239126), Pair(190.0f, 1140.9999f)),
-            Pair(Point.fromLngLat(135.2795732634925, 34.42554206785929), Pair(190.0f, 1149.6665f)),
-            Pair(Point.fromLngLat(135.28364309848703, 34.422466995660905), Pair(190.0f, 1158.3331f)),
-            Pair(Point.fromLngLat(135.28771263411198, 34.41939178866937), Pair(190.0f, 1166.9998f)),
-            Pair(Point.fromLngLat(135.2917818704107, 34.41631644691015), Pair(190.0f, 1175.6664f)),
-            Pair(Point.fromLngLat(135.296376, 34.413709), Pair(190.0f, 1193.0f)),
-            Pair(Point.fromLngLat(135.30153571191934, 34.415502500803086), Pair(204.55882f, 1193.0f)),
-            Pair(Point.fromLngLat(135.30698698267128, 34.41623354196272), Pair(219.11765f, 1193.0f)),
-            Pair(Point.fromLngLat(135.31254604370773, 34.4171395936453), Pair(233.67647f, 1193.0f)),
-            Pair(Point.fromLngLat(135.31770275656007, 34.41913698290124), Pair(248.23529f, 1193.0f)),
-            Pair(Point.fromLngLat(135.32209657672965, 34.42211206480083), Pair(262.79413f, 1193.0f)),
-            Pair(Point.fromLngLat(135.3261666280631, 34.425452525714384), Pair(277.35297f, 1193.0f)),
-            Pair(Point.fromLngLat(135.32978210516993, 34.42912703967447), Pair(291.9118f, 1193.0f)),
-            Pair(Point.fromLngLat(135.33271005055866, 34.432921488449374), Pair(306.47064f, 1193.0f)),
-            Pair(Point.fromLngLat(135.33541607553065, 34.436993669875044), Pair(321.02948f, 1193.0f)),
-            Pair(Point.fromLngLat(135.3375814382039, 34.44120845855389), Pair(335.58832f, 1193.0f)),
-            Pair(Point.fromLngLat(135.34233757614805, 34.443772467101724), Pair(350.14716f, 1193.0f)),
-            Pair(Point.fromLngLat(135.34757166120423, 34.44538980221373), Pair(364.706f, 1193.0f)),
-            Pair(Point.fromLngLat(135.35172072901352, 34.448411693460926), Pair(379.26483f, 1193.0f)),
-            Pair(Point.fromLngLat(135.35491999308022, 34.45231132854109), Pair(393.82367f, 1193.0f)),
-            Pair(Point.fromLngLat(135.35781935472207, 34.4561750433119), Pair(408.3825f, 1193.0f)),
-            Pair(Point.fromLngLat(135.36071005673364, 34.46024379720794), Pair(422.94135f, 1193.0f)),
-            Pair(Point.fromLngLat(135.3638212126413, 34.46419186540004), Pair(437.50018f, 1193.0f)),
-            Pair(Point.fromLngLat(135.367274, 34.467891), Pair(452.05902f, 1193.0f)),
-            Pair(Point.fromLngLat(135.372093, 34.470181), Pair(466.61786f, 1193.0f)),
-            Pair(Point.fromLngLat(135.37556553078954, 34.47393702541184), Pair(481.1767f, 1193.0f)),
-            Pair(Point.fromLngLat(135.37763756696697, 34.478165135886364), Pair(495.73553f, 1193.0f)),
-            Pair(Point.fromLngLat(135.37727658607497, 34.482674474856374), Pair(510.29437f, 1193.0f)),
-            Pair(Point.fromLngLat(135.37846799417682, 34.48708282150821), Pair(524.8532f, 1193.0f)),
-            Pair(Point.fromLngLat(135.37987166989663, 34.49167308855809), Pair(539.41205f, 1193.0f)),
-            Pair(Point.fromLngLat(135.38125883185123, 34.496287127330405), Pair(553.9709f, 1193.0f)),
-            Pair(Point.fromLngLat(135.38411024257616, 34.50033566876203), Pair(568.5297f, 1193.0f)),
-            Pair(Point.fromLngLat(135.38836542646942, 34.5031906513975), Pair(583.08856f, 1193.0f)),
-            Pair(Point.fromLngLat(135.3924609932627, 34.506199709364644), Pair(597.6474f, 1193.0f)),
-            Pair(Point.fromLngLat(135.3972101816279, 34.5086433829396), Pair(612.20624f, 1193.0f)),
-            Pair(Point.fromLngLat(135.4027267055564, 34.509666720826445), Pair(626.7651f, 1193.0f)),
-            Pair(Point.fromLngLat(135.40787501454807, 34.51170531036246), Pair(641.3239f, 1193.0f)),
-            Pair(Point.fromLngLat(135.41265382949538, 34.5138982810049), Pair(655.88275f, 1193.0f)),
-            Pair(Point.fromLngLat(135.4166698623002, 34.51715286622886), Pair(685.0f, 1193.0f)),
-            Pair(Point.fromLngLat(135.42004521533246, 34.52091406849284), Pair(691.2963f, 1186.963f)),
-            Pair(Point.fromLngLat(135.42372098475894, 34.524549437135775), Pair(697.59265f, 1180.926f)),
-            Pair(Point.fromLngLat(135.42613014645548, 34.528744338318134), Pair(703.889f, 1174.889f)),
-            Pair(Point.fromLngLat(135.428662, 34.532777), Pair(710.1853f, 1168.852f)),
-            Pair(Point.fromLngLat(135.431641957322, 34.536730710529525), Pair(716.4816f, 1162.8151f)),
-            Pair(Point.fromLngLat(135.43440708500913, 34.54061624668257), Pair(722.77795f, 1156.7781f)),
-            Pair(Point.fromLngLat(135.43693382241486, 34.544743206388254), Pair(729.0743f, 1150.7411f)),
-            Pair(Point.fromLngLat(135.43980844776218, 34.5487473008449), Pair(735.3706f, 1144.7041f)),
-            Pair(Point.fromLngLat(135.4437509959282, 34.55204672901478), Pair(741.66693f, 1138.6671f)),
-            Pair(Point.fromLngLat(135.4453917319862, 34.55643045317768), Pair(747.96326f, 1132.6301f)),
-            Pair(Point.fromLngLat(135.44884249890123, 34.56006836407924), Pair(754.2596f, 1126.5931f)),
-            Pair(Point.fromLngLat(135.452953, 34.563207), Pair(760.5559f, 1120.5562f)),
-            Pair(Point.fromLngLat(135.45539642245308, 34.56730267405715), Pair(766.85223f, 1114.5192f)),
-            Pair(Point.fromLngLat(135.45706721763298, 34.57168874601794), Pair(773.14856f, 1108.4822f)),
-            Pair(Point.fromLngLat(135.45859594523313, 34.576176275243675), Pair(779.4449f, 1102.4452f)),
-            Pair(Point.fromLngLat(135.45800853419814, 34.58073834209151), Pair(785.7412f, 1096.4082f)),
-            Pair(Point.fromLngLat(135.46075849587007, 34.58480882568937), Pair(792.03754f, 1090.3712f)),
-            Pair(Point.fromLngLat(135.46355467379263, 34.588697943636475), Pair(798.33386f, 1084.3342f)),
-            Pair(Point.fromLngLat(135.46332605505924, 34.5933506955903), Pair(804.6302f, 1078.2972f)),
-            Pair(Point.fromLngLat(135.462748, 34.597988), Pair(810.9265f, 1072.2603f)),
-            Pair(Point.fromLngLat(135.461395, 34.602538), Pair(817.22284f, 1066.2233f)),
-            Pair(Point.fromLngLat(135.45759276884212, 34.605769057839105), Pair(823.51917f, 1060.1863f)),
-            Pair(Point.fromLngLat(135.4532119777108, 34.608573951285244), Pair(829.8155f, 1054.1493f)),
-            Pair(Point.fromLngLat(135.44794307119042, 34.61045284132922), Pair(836.1118f, 1048.1123f)),
-            Pair(Point.fromLngLat(135.44252060051764, 34.61196288140486), Pair(842.40814f, 1042.0753f)),
-            Pair(Point.fromLngLat(135.43716885965827, 34.61344655043803), Pair(855.0f, 1030.0f)),
-            Pair(Point.fromLngLat(135.43541857873296, 34.617869471779855), Pair(855.0f, 1025.0f)),
-            Pair(Point.fromLngLat(135.43366052803458, 34.62238046669404), Pair(855.0f, 1020.0f)),
-            Pair(Point.fromLngLat(135.4320750816063, 34.62669964452119), Pair(855.0f, 1010.0f)),
-            Pair(Point.fromLngLat(135.434718, 34.630798), Pair(845.8333f, 1010.0f)),
-            Pair(Point.fromLngLat(135.43422546876656, 34.63542926719152), Pair(836.6666f, 1010.0f)),
-            Pair(Point.fromLngLat(135.4351268908143, 34.64010685015972), Pair(827.49994f, 1010.0f)),
-            Pair(Point.fromLngLat(135.43767350436244, 34.644094148606506), Pair(818.33325f, 1010.0f)),
-            Pair(Point.fromLngLat(135.44034202514675, 34.64827498171898), Pair(800.0f, 1010.0f)),
-            Pair(Point.fromLngLat(135.442021, 34.652583), Pair(800.0f, 983.46155f)),
-            Pair(Point.fromLngLat(135.43772220525543, 34.65545767075316), Pair(800.0f, 956.9231f)),
-            Pair(Point.fromLngLat(135.43353995208128, 34.65855613855892), Pair(800.0f, 930.38464f)),
-            Pair(Point.fromLngLat(135.4297624373702, 34.66185494520802), Pair(800.0f, 903.8462f)),
-            Pair(Point.fromLngLat(135.42491943782437, 34.66418327103825), Pair(800.0f, 877.30774f)),
-            Pair(Point.fromLngLat(135.42147644754107, 34.66775765160598), Pair(800.0f, 850.7693f)),
-            Pair(Point.fromLngLat(135.4195353901103, 34.67207416532465), Pair(800.0f, 824.23083f)),
-            Pair(Point.fromLngLat(135.41764367699446, 34.67632796131387), Pair(800.0f, 797.6924f)),
-            Pair(Point.fromLngLat(135.4157477905149, 34.68059935614752), Pair(800.0f, 771.15393f)),
-            Pair(Point.fromLngLat(135.41385170843316, 34.68487072162431), Pair(800.0f, 744.6155f)),
-            Pair(Point.fromLngLat(135.41180633403846, 34.689051000154784), Pair(800.0f, 718.077f)),
-            Pair(Point.fromLngLat(135.4085670017836, 34.692791000730736), Pair(800.0f, 665.0f)),
-            Pair(Point.fromLngLat(135.404270772023, 34.695821784837534), Pair(793.3333f, 657.5f)),
-            Pair(Point.fromLngLat(135.3991044234251, 34.69760153842241), Pair(786.6666f, 650.0f)),
-            Pair(Point.fromLngLat(135.39349178318247, 34.697239280802066), Pair(779.99994f, 642.5f)),
-            Pair(Point.fromLngLat(135.3883840375837, 34.69519621571538), Pair(773.33325f, 635.0f)),
-            Pair(Point.fromLngLat(135.3829833028119, 34.69657143040748), Pair(760.0f, 620.0f)),
-            Pair(Point.fromLngLat(135.37722733967075, 34.69664972496831), Pair(750.6818f, 620.0f)),
-            Pair(Point.fromLngLat(135.371554, 34.696653), Pair(741.36365f, 620.0f)),
-            Pair(Point.fromLngLat(135.36593296958566, 34.69719920699183), Pair(732.0455f, 620.0f)),
-            Pair(Point.fromLngLat(135.3610502018518, 34.69947474891815), Pair(722.7273f, 620.0f)),
-            Pair(Point.fromLngLat(135.3572323119788, 34.7027147418947), Pair(713.4091f, 620.0f)),
-            Pair(Point.fromLngLat(135.3533519043536, 34.70599524171251), Pair(704.09094f, 620.0f)),
-            Pair(Point.fromLngLat(135.34948350387725, 34.70922216606029), Pair(694.77277f, 620.0f)),
-            Pair(Point.fromLngLat(135.345449662829, 34.7124811215806), Pair(685.4546f, 620.0f)),
-            Pair(Point.fromLngLat(135.34034559842812, 34.71457425994662), Pair(676.1364f, 620.0f)),
-            Pair(Point.fromLngLat(135.3350472167275, 34.716153403764714), Pair(666.81824f, 620.0f)),
-            Pair(Point.fromLngLat(135.329447, 34.716838), Pair(657.50006f, 620.0f)),
-            Pair(Point.fromLngLat(135.323797380371, 34.715918074978), Pair(648.1819f, 620.0f)),
-            Pair(Point.fromLngLat(135.31840699243008, 34.714852860921994), Pair(638.8637f, 620.0f)),
-            Pair(Point.fromLngLat(135.31306830864108, 34.71379943256003), Pair(629.54553f, 620.0f)),
-            Pair(Point.fromLngLat(135.3074546944639, 34.71269502012801), Pair(620.22736f, 620.0f)),
-            Pair(Point.fromLngLat(135.3019416263332, 34.71167600316799), Pair(610.9092f, 620.0f)),
-            Pair(Point.fromLngLat(135.296405, 34.710871), Pair(601.591f, 620.0f)),
-            Pair(Point.fromLngLat(135.2908352921629, 34.70974754427635), Pair(592.2728f, 620.0f)),
-            Pair(Point.fromLngLat(135.28526861044196, 34.70860456528489), Pair(582.95465f, 620.0f)),
-            Pair(Point.fromLngLat(135.27954719458808, 34.70792658266585), Pair(573.6365f, 620.0f)),
-            Pair(Point.fromLngLat(135.2745724594273, 34.70588858834762), Pair(555.0f, 620.0f)),
-            Pair(Point.fromLngLat(135.27358603414842, 34.70134176784736), Pair(555.0f, 630.0f)),
-            Pair(Point.fromLngLat(135.2732434287031, 34.69668412888626), Pair(555.0f, 650.0f)),
-        )
+        val intermediatePoints = XB03PointToPixelMap.pointToPixelForInterpolation2
+        LocationSearchUtil.interpolateScreenCoordinates(intermediatePoints)
+        intermediatePoints.map {
+            Pair(it.get(), it.getChmCoordinates()!!) // this shouldn't be null but I want to know if it is
+        }
     }
+
+
+    // private val interpolatedPixelMap2: List<Pair<Point, Pair<Float, Float>>>  by lazy {
+    //     listOf(
+    //         Pair(Point.fromLngLat(135.296376, 34.413709), Pair(190.0f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.301912, 34.408723), Pair(190.0f, 1200.8462f)),
+    //         Pair(Point.fromLngLat(135.30630850356116, 34.40573500172152), Pair(190.0f, 1208.6924f)),
+    //         Pair(Point.fromLngLat(135.31031322233918, 34.40254050180957), Pair(190.0f, 1216.5386f)),
+    //         Pair(Point.fromLngLat(135.31372179888464, 34.399031719010026), Pair(190.0f, 1224.3848f)),
+    //         Pair(Point.fromLngLat(135.3166981258145, 34.39507528106214), Pair(190.0f, 1232.231f)),
+    //         Pair(Point.fromLngLat(135.3194479929101, 34.391177788049355), Pair(190.0f, 1240.0771f)),
+    //         Pair(Point.fromLngLat(135.32219815463566, 34.38728050721432), Pair(190.0f, 1247.9233f)),
+    //         Pair(Point.fromLngLat(135.3257254450907, 34.383639177315146), Pair(190.0f, 1255.7695f)),
+    //         Pair(Point.fromLngLat(135.32973159134343, 34.3802572459963), Pair(190.0f, 1263.6157f)),
+    //         Pair(Point.fromLngLat(135.33226446629243, 34.37604683188518), Pair(190.0f, 1271.4619f)),
+    //         Pair(Point.fromLngLat(135.33413122856064, 34.3718098826353), Pair(190.0f, 1279.3081f)),
+    //         Pair(Point.fromLngLat(135.335067, 34.367225), Pair(190.0f, 1295.0f)),
+    //     )
+    // }
+
+    // private val interpolatedPixelMap: List<Pair<Point, Pair<Float, Float>>>  by lazy {
+    //     listOf(
+    //         Pair(Point.fromLngLat(135.26354888814373, 34.438500471880225), Pair(190.0f, 1115.0f)),
+    //         Pair(Point.fromLngLat(135.26729722216783, 34.43489747681673), Pair(190.0f, 1123.6666f)),
+    //         Pair(Point.fromLngLat(135.27143269522125, 34.43169180777495), Pair(190.0f, 1132.3333f)),
+    //         Pair(Point.fromLngLat(135.27550312908502, 34.428617005239126), Pair(190.0f, 1140.9999f)),
+    //         Pair(Point.fromLngLat(135.2795732634925, 34.42554206785929), Pair(190.0f, 1149.6665f)),
+    //         Pair(Point.fromLngLat(135.28364309848703, 34.422466995660905), Pair(190.0f, 1158.3331f)),
+    //         Pair(Point.fromLngLat(135.28771263411198, 34.41939178866937), Pair(190.0f, 1166.9998f)),
+    //         Pair(Point.fromLngLat(135.2917818704107, 34.41631644691015), Pair(190.0f, 1175.6664f)),
+    //         Pair(Point.fromLngLat(135.296376, 34.413709), Pair(190.0f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.30153571191934, 34.415502500803086), Pair(204.55882f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.30698698267128, 34.41623354196272), Pair(219.11765f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.31254604370773, 34.4171395936453), Pair(233.67647f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.31770275656007, 34.41913698290124), Pair(248.23529f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.32209657672965, 34.42211206480083), Pair(262.79413f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.3261666280631, 34.425452525714384), Pair(277.35297f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.32978210516993, 34.42912703967447), Pair(291.9118f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.33271005055866, 34.432921488449374), Pair(306.47064f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.33541607553065, 34.436993669875044), Pair(321.02948f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.3375814382039, 34.44120845855389), Pair(335.58832f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.34233757614805, 34.443772467101724), Pair(350.14716f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.34757166120423, 34.44538980221373), Pair(364.706f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.35172072901352, 34.448411693460926), Pair(379.26483f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.35491999308022, 34.45231132854109), Pair(393.82367f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.35781935472207, 34.4561750433119), Pair(408.3825f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.36071005673364, 34.46024379720794), Pair(422.94135f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.3638212126413, 34.46419186540004), Pair(437.50018f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.367274, 34.467891), Pair(452.05902f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.372093, 34.470181), Pair(466.61786f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.37556553078954, 34.47393702541184), Pair(481.1767f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.37763756696697, 34.478165135886364), Pair(495.73553f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.37727658607497, 34.482674474856374), Pair(510.29437f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.37846799417682, 34.48708282150821), Pair(524.8532f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.37987166989663, 34.49167308855809), Pair(539.41205f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.38125883185123, 34.496287127330405), Pair(553.9709f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.38411024257616, 34.50033566876203), Pair(568.5297f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.38836542646942, 34.5031906513975), Pair(583.08856f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.3924609932627, 34.506199709364644), Pair(597.6474f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.3972101816279, 34.5086433829396), Pair(612.20624f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.4027267055564, 34.509666720826445), Pair(626.7651f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.40787501454807, 34.51170531036246), Pair(641.3239f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.41265382949538, 34.5138982810049), Pair(655.88275f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.4166698623002, 34.51715286622886), Pair(685.0f, 1193.0f)),
+    //         Pair(Point.fromLngLat(135.42004521533246, 34.52091406849284), Pair(691.2963f, 1186.963f)),
+    //         Pair(Point.fromLngLat(135.42372098475894, 34.524549437135775), Pair(697.59265f, 1180.926f)),
+    //         Pair(Point.fromLngLat(135.42613014645548, 34.528744338318134), Pair(703.889f, 1174.889f)),
+    //         Pair(Point.fromLngLat(135.428662, 34.532777), Pair(710.1853f, 1168.852f)),
+    //         Pair(Point.fromLngLat(135.431641957322, 34.536730710529525), Pair(716.4816f, 1162.8151f)),
+    //         Pair(Point.fromLngLat(135.43440708500913, 34.54061624668257), Pair(722.77795f, 1156.7781f)),
+    //         Pair(Point.fromLngLat(135.43693382241486, 34.544743206388254), Pair(729.0743f, 1150.7411f)),
+    //         Pair(Point.fromLngLat(135.43980844776218, 34.5487473008449), Pair(735.3706f, 1144.7041f)),
+    //         Pair(Point.fromLngLat(135.4437509959282, 34.55204672901478), Pair(741.66693f, 1138.6671f)),
+    //         Pair(Point.fromLngLat(135.4453917319862, 34.55643045317768), Pair(747.96326f, 1132.6301f)),
+    //         Pair(Point.fromLngLat(135.44884249890123, 34.56006836407924), Pair(754.2596f, 1126.5931f)),
+    //         Pair(Point.fromLngLat(135.452953, 34.563207), Pair(760.5559f, 1120.5562f)),
+    //         Pair(Point.fromLngLat(135.45539642245308, 34.56730267405715), Pair(766.85223f, 1114.5192f)),
+    //         Pair(Point.fromLngLat(135.45706721763298, 34.57168874601794), Pair(773.14856f, 1108.4822f)),
+    //         Pair(Point.fromLngLat(135.45859594523313, 34.576176275243675), Pair(779.4449f, 1102.4452f)),
+    //         Pair(Point.fromLngLat(135.45800853419814, 34.58073834209151), Pair(785.7412f, 1096.4082f)),
+    //         Pair(Point.fromLngLat(135.46075849587007, 34.58480882568937), Pair(792.03754f, 1090.3712f)),
+    //         Pair(Point.fromLngLat(135.46355467379263, 34.588697943636475), Pair(798.33386f, 1084.3342f)),
+    //         Pair(Point.fromLngLat(135.46332605505924, 34.5933506955903), Pair(804.6302f, 1078.2972f)),
+    //         Pair(Point.fromLngLat(135.462748, 34.597988), Pair(810.9265f, 1072.2603f)),
+    //         Pair(Point.fromLngLat(135.461395, 34.602538), Pair(817.22284f, 1066.2233f)),
+    //         Pair(Point.fromLngLat(135.45759276884212, 34.605769057839105), Pair(823.51917f, 1060.1863f)),
+    //         Pair(Point.fromLngLat(135.4532119777108, 34.608573951285244), Pair(829.8155f, 1054.1493f)),
+    //         Pair(Point.fromLngLat(135.44794307119042, 34.61045284132922), Pair(836.1118f, 1048.1123f)),
+    //         Pair(Point.fromLngLat(135.44252060051764, 34.61196288140486), Pair(842.40814f, 1042.0753f)),
+    //         Pair(Point.fromLngLat(135.43716885965827, 34.61344655043803), Pair(855.0f, 1030.0f)),
+    //         Pair(Point.fromLngLat(135.43541857873296, 34.617869471779855), Pair(855.0f, 1025.0f)),
+    //         Pair(Point.fromLngLat(135.43366052803458, 34.62238046669404), Pair(855.0f, 1020.0f)),
+    //         Pair(Point.fromLngLat(135.4320750816063, 34.62669964452119), Pair(855.0f, 1010.0f)),
+    //         Pair(Point.fromLngLat(135.434718, 34.630798), Pair(845.8333f, 1010.0f)),
+    //         Pair(Point.fromLngLat(135.43422546876656, 34.63542926719152), Pair(836.6666f, 1010.0f)),
+    //         Pair(Point.fromLngLat(135.4351268908143, 34.64010685015972), Pair(827.49994f, 1010.0f)),
+    //         Pair(Point.fromLngLat(135.43767350436244, 34.644094148606506), Pair(818.33325f, 1010.0f)),
+    //         Pair(Point.fromLngLat(135.44034202514675, 34.64827498171898), Pair(800.0f, 1010.0f)),
+    //         Pair(Point.fromLngLat(135.442021, 34.652583), Pair(800.0f, 983.46155f)),
+    //         Pair(Point.fromLngLat(135.43772220525543, 34.65545767075316), Pair(800.0f, 956.9231f)),
+    //         Pair(Point.fromLngLat(135.43353995208128, 34.65855613855892), Pair(800.0f, 930.38464f)),
+    //         Pair(Point.fromLngLat(135.4297624373702, 34.66185494520802), Pair(800.0f, 903.8462f)),
+    //         Pair(Point.fromLngLat(135.42491943782437, 34.66418327103825), Pair(800.0f, 877.30774f)),
+    //         Pair(Point.fromLngLat(135.42147644754107, 34.66775765160598), Pair(800.0f, 850.7693f)),
+    //         Pair(Point.fromLngLat(135.4195353901103, 34.67207416532465), Pair(800.0f, 824.23083f)),
+    //         Pair(Point.fromLngLat(135.41764367699446, 34.67632796131387), Pair(800.0f, 797.6924f)),
+    //         Pair(Point.fromLngLat(135.4157477905149, 34.68059935614752), Pair(800.0f, 771.15393f)),
+    //         Pair(Point.fromLngLat(135.41385170843316, 34.68487072162431), Pair(800.0f, 744.6155f)),
+    //         Pair(Point.fromLngLat(135.41180633403846, 34.689051000154784), Pair(800.0f, 718.077f)),
+    //         Pair(Point.fromLngLat(135.4085670017836, 34.692791000730736), Pair(800.0f, 665.0f)),
+    //         Pair(Point.fromLngLat(135.404270772023, 34.695821784837534), Pair(793.3333f, 657.5f)),
+    //         Pair(Point.fromLngLat(135.3991044234251, 34.69760153842241), Pair(786.6666f, 650.0f)),
+    //         Pair(Point.fromLngLat(135.39349178318247, 34.697239280802066), Pair(779.99994f, 642.5f)),
+    //         Pair(Point.fromLngLat(135.3883840375837, 34.69519621571538), Pair(773.33325f, 635.0f)),
+    //         Pair(Point.fromLngLat(135.3829833028119, 34.69657143040748), Pair(760.0f, 620.0f)),
+    //         Pair(Point.fromLngLat(135.37722733967075, 34.69664972496831), Pair(750.6818f, 620.0f)),
+    //         Pair(Point.fromLngLat(135.371554, 34.696653), Pair(741.36365f, 620.0f)),
+    //         Pair(Point.fromLngLat(135.36593296958566, 34.69719920699183), Pair(732.0455f, 620.0f)),
+    //         Pair(Point.fromLngLat(135.3610502018518, 34.69947474891815), Pair(722.7273f, 620.0f)),
+    //         Pair(Point.fromLngLat(135.3572323119788, 34.7027147418947), Pair(713.4091f, 620.0f)),
+    //         Pair(Point.fromLngLat(135.3533519043536, 34.70599524171251), Pair(704.09094f, 620.0f)),
+    //         Pair(Point.fromLngLat(135.34948350387725, 34.70922216606029), Pair(694.77277f, 620.0f)),
+    //         Pair(Point.fromLngLat(135.345449662829, 34.7124811215806), Pair(685.4546f, 620.0f)),
+    //         Pair(Point.fromLngLat(135.34034559842812, 34.71457425994662), Pair(676.1364f, 620.0f)),
+    //         Pair(Point.fromLngLat(135.3350472167275, 34.716153403764714), Pair(666.81824f, 620.0f)),
+    //         Pair(Point.fromLngLat(135.329447, 34.716838), Pair(657.50006f, 620.0f)),
+    //         Pair(Point.fromLngLat(135.323797380371, 34.715918074978), Pair(648.1819f, 620.0f)),
+    //         Pair(Point.fromLngLat(135.31840699243008, 34.714852860921994), Pair(638.8637f, 620.0f)),
+    //         Pair(Point.fromLngLat(135.31306830864108, 34.71379943256003), Pair(629.54553f, 620.0f)),
+    //         Pair(Point.fromLngLat(135.3074546944639, 34.71269502012801), Pair(620.22736f, 620.0f)),
+    //         Pair(Point.fromLngLat(135.3019416263332, 34.71167600316799), Pair(610.9092f, 620.0f)),
+    //         Pair(Point.fromLngLat(135.296405, 34.710871), Pair(601.591f, 620.0f)),
+    //         Pair(Point.fromLngLat(135.2908352921629, 34.70974754427635), Pair(592.2728f, 620.0f)),
+    //         Pair(Point.fromLngLat(135.28526861044196, 34.70860456528489), Pair(582.95465f, 620.0f)),
+    //         Pair(Point.fromLngLat(135.27954719458808, 34.70792658266585), Pair(573.6365f, 620.0f)),
+    //         Pair(Point.fromLngLat(135.2745724594273, 34.70588858834762), Pair(555.0f, 620.0f)),
+    //         Pair(Point.fromLngLat(135.27358603414842, 34.70134176784736), Pair(555.0f, 630.0f)),
+    //         Pair(Point.fromLngLat(135.2732434287031, 34.69668412888626), Pair(555.0f, 650.0f)),
+    //     )
+    // }
 
     // private val pointToPixelMapRevised: List<Pair<Point, Pair<Float, Float>>> by lazy {
     //     listOf(
@@ -1229,6 +1261,23 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
     //     }
     // }
 
+    private val preRecordedPoints2 by lazy {
+        listOf(
+            Point.fromLngLat(135.301912, 34.408723),
+            Point.fromLngLat(135.30630850356116, 34.40573500172152),
+            Point.fromLngLat(135.31031322233918, 34.40254050180957),
+            Point.fromLngLat(135.31372179888464, 34.399031719010026),
+            Point.fromLngLat(135.3166981258145, 34.39507528106214),
+            Point.fromLngLat(135.3194479929101, 34.391177788049355),
+            Point.fromLngLat(135.32219815463566, 34.38728050721432),
+            Point.fromLngLat(135.3257254450907, 34.383639177315146),
+            Point.fromLngLat(135.32973159134343, 34.3802572459963),
+            Point.fromLngLat(135.33226446629243, 34.37604683188518),
+            Point.fromLngLat(135.33413122856064, 34.3718098826353),
+            Point.fromLngLat(135.335067, 34.367225),
+        )
+    }
+
     private val preRecordedPoints by lazy {
         listOf(
             // Point.fromLngLat(135.263263, 34.43838),
@@ -1372,7 +1421,7 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
     private val POINT_HIGHLIGHT_LAYER_ID = "POINT_HIGHLIGHT_LAYER_ID"
     private val POINT_HIGHLIGHT_SOURCE_ID = "POINT_HIGHLIGHT_SOURCE_ID"
     private fun initPointHighlightLayer(style: Style) {
-        if (!style.styleSourceExists(POINT_HIGHLIGHT_LAYER_ID)) {
+        if (!style.styleSourceExists(POINT_HIGHLIGHT_SOURCE_ID)) {
             geoJsonSource(POINT_HIGHLIGHT_SOURCE_ID) {}.bindTo(style)
         }
 
@@ -1383,6 +1432,34 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
                 .circleColor(Color.RED)
                 .bindTo(style)
         }
+    }
+
+    private val BOUNDS_LAYER = "BOUNDS_LAYER"
+    private val BOUNDS_SOURCE = "BOUNDS_SOURCE"
+    private fun initBoundsLayer(style: Style) {
+        if (!style.styleSourceExists(BOUNDS_SOURCE)) {
+            geoJsonSource(BOUNDS_SOURCE) {}.bindTo(style)
+        }
+
+        if (!style.styleLayerExists(BOUNDS_LAYER)) {
+            LineLayer(BOUNDS_LAYER, BOUNDS_SOURCE)
+                .lineColor(Color.BLUE)
+                .lineWidth(5.0)
+                .bindTo(style)
+        }
+    }
+
+    private fun showBounds() {
+        val feature = Feature.fromGeometry(LineString.fromLngLats(
+            listOf(
+                Point.fromLngLat(134.8722536, 35.0032252), // north west
+                Point.fromLngLat(135.7471644, 35.0032252), // north east
+                Point.fromLngLat(135.7471644, 34.253293), // south east
+                Point.fromLngLat(134.8722536, 34.253293), // south west
+                Point.fromLngLat(134.8722536, 35.0032252) // close to north west
+            )
+        ))
+        (mapboxMap.getStyle()!!.getSource(BOUNDS_SOURCE) as GeoJsonSource).feature(feature)
     }
 
     private fun highLightPointOnMap(point: Point) {
@@ -1428,35 +1505,4 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
         }
     }
 
-    private fun interpolateScreenCoordinates(pointToPixelList: List<EnhancedPoint>) {
-        var position = 0
-        val nextKeyPoint = getNextKeyPoint(position, pointToPixelList)
-        val followingKeyPoint = getNextKeyPoint(position + 1, pointToPixelList)
-        ifNonNull(nextKeyPoint, followingKeyPoint) { nPoint, fPoint ->
-            val xDelta = (fPoint.second.getChmCoordinates()?.first ?: 0f) - (nPoint.second.getChmCoordinates()?.first ?: 0f)
-            val yDelta = (fPoint.second.getChmCoordinates()?.second ?: 0f) - (nPoint.second.getChmCoordinates()?.second ?: 0f)
-            val fillerRange = fPoint.first - nPoint.first
-            var xPoint = (nPoint.second.getChmCoordinates()?.first ?: 0f) + xDelta
-            var yPoint = (nPoint.second.getChmCoordinates()?.second ?: 0f) + yDelta
-
-            repeat(fillerRange) { index ->
-                val item = pointToPixelList[index]
-                if (item is EnhancedPoint.MapPoint) {
-                    item.setChmCoordinates(Pair(xPoint, yPoint))
-                }
-
-                xPoint += xDelta
-                yPoint += yDelta
-            }
-        }
-    }
-
-    private fun getNextKeyPoint(offset: Int, pointToPixelList: List<EnhancedPoint>): Pair<Int, EnhancedPoint>? {
-        val nextKeyPointIndex = pointToPixelList.drop(offset).indexOfFirst { it is EnhancedPoint.KeyPoint }
-        return if (nextKeyPointIndex >= 0) {
-            Pair(nextKeyPointIndex, pointToPixelList[nextKeyPointIndex])
-        } else {
-            null
-        }
-    }
 }
