@@ -1,21 +1,22 @@
 package com.mapbox.navigation.ui.maps.internal.locationsearch
 
 import com.mapbox.geojson.Point
+import java.util.function.Supplier
 
-class LocationTreeNode(
-    private val points: MutableList<Point>,
+class LocationTreeNode<T: Supplier<Point>>(
+    private val points: MutableList<T>,
     private val capacity: Int = 32,
     private val distanceCalcFunction: (Point, Point) ->  Double
 ) {
 
     private val vantagePoint: Point by lazy {
-        points.random()
+        points.random().get()
     }
 
     private var threshold = 0.0
 
-    private var closer: LocationTreeNode? = null
-    private var farther: LocationTreeNode? = null
+    private var closer: LocationTreeNode<T>? = null
+    private var farther: LocationTreeNode<T>? = null
 
     init {
         initializeNode()
@@ -38,11 +39,11 @@ class LocationTreeNode(
             // vantage point are on the left of the vantage point index in the list but this is
             // easier to code. Performing a quick select on the list would likely be more efficient
             // than sorting the whole list.
-            points.sortBy { distanceCalcFunction(vantagePoint, it) }
+            points.sortBy { distanceCalcFunction(vantagePoint, it.get()) }
             if (points.size > capacity) {
-                threshold = distanceCalcFunction(vantagePoint, points[points.size / 2])
+                threshold = distanceCalcFunction(vantagePoint, points[points.size / 2].get())
                 when (val firstPastThreshold =
-                    partitionPoints(vantagePoint, points, threshold)) {
+                    partitionPoints(vantagePoint, points.map { it.get() }, threshold)) {
                     in 0 .. Int.MAX_VALUE -> {
                         closer = LocationTreeNode(points.subList(0, firstPastThreshold).toMutableList(), capacity, distanceCalcFunction)
                         farther = LocationTreeNode(points.subList(firstPastThreshold, points.size).toMutableList(), capacity, distanceCalcFunction)
@@ -65,23 +66,23 @@ class LocationTreeNode(
         }
     }
 
-    fun add(point: Point) {
+    fun add(point: T) {
         if (points.isEmpty()) {
-            getChildNodeForPoint(point)?.add(point)
+            getChildNodeForPoint(point.get())?.add(point)
         } else {
             points.add(point)
         }
     }
 
-    fun remove(point: Point): Boolean {
+    fun remove(point: T): Boolean {
         return if (points.isEmpty()) {
-            getChildNodeForPoint(point)?.remove(point) ?: false
+            getChildNodeForPoint(point.get())?.remove(point) ?: false
         } else {
             points.remove(point)
         }
     }
 
-    fun collectNearestNeighbors(collector: NearestNeighborCollector) {
+    fun collectNearestNeighbors(collector: NearestNeighborCollector<T>) {
         if (points.isEmpty()) {
             val firstNodeSearched = getChildNodeForPoint(collector.queryPoint)
             firstNodeSearched?.collectNearestNeighbors(collector)
@@ -113,7 +114,7 @@ class LocationTreeNode(
         }
     }
 
-    private fun getChildNodeForPoint(point: Point): LocationTreeNode? {
+    private fun getChildNodeForPoint(point: Point): LocationTreeNode<T>? {
         return if (distanceCalcFunction(vantagePoint, point)  <= threshold) {
             closer
         } else {
@@ -121,7 +122,7 @@ class LocationTreeNode(
         }
     }
 
-    private fun addAllPointsToCollection(collection: MutableList<Point>) {
+    private fun addAllPointsToCollection(collection: MutableList<T>) {
         if (points.isEmpty()) {
             closer?.addAllPointsToCollection(collection)
             farther?.addAllPointsToCollection(collection)

@@ -89,6 +89,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
+import java.util.function.Supplier
 
 /**
  * This class demonstrates the usage of the route line and route arrow API's. There is
@@ -136,8 +137,11 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
     }
 
     private val locationSearchTree by lazy {
-        LocationSearchTree().also {
-            it.addAll(preRecordedPoints2)
+        LocationSearchTree<Supplier<Point>>().also {
+            val points = preRecordedPoints2.map {
+                Supplier<Point> { it }
+            }
+            it.addAll(points)
         }
     }
 
@@ -548,7 +552,7 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
                 val nearestDef = async { locationSearchTree.getNearestNeighbor(point) }
                 nearestDef.await()?.apply {
                     Log.e("foobar", "my closest point = $this time take is ${System.currentTimeMillis() - start}")
-                    highLightPointOnMap(this)
+                    highLightPointOnMap(this.get())
                 }
             }
 
@@ -597,9 +601,9 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
                 val nearestDef = async { locationSearchTree.getNearestNeighbor(currentLocPoint) }
                 nearestDef.await()?.apply {
                     //Log.e("foobar", "my closest point = $this time take is ${System.currentTimeMillis() - start}")
-                    highLightPointOnMap(this)
+                    highLightPointOnMap(this.get())
 
-                    interpolatedPixelMap.firstOrNull { it.first == this }?.apply {
+                    interpolatedPixelMap.firstOrNull { it.first == this.get() }?.apply {
                         updateCHMImage(this.second.first, this.second.second)
                     }
                     //val misses = locationSearchTree.getDistanceCalculationCacheMisses()

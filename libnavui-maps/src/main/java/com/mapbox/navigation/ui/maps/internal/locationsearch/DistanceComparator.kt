@@ -3,11 +3,12 @@ package com.mapbox.navigation.ui.maps.internal.locationsearch
 import com.mapbox.geojson.Point
 import com.mapbox.turf.TurfConstants
 import com.mapbox.turf.TurfMeasurement
+import java.util.function.Supplier
 
-class DistanceComparator(private val origin: Point): Comparator<Point> {
+class DistanceComparator(private val origin: Point): Comparator<Supplier<Point>> {
 
-    override fun compare(p0: Point, p1: Point): Int {
-        return TurfMeasurement.distance(origin, p0, TurfConstants.UNIT_METERS)
-            .compareTo(TurfMeasurement.distance(origin, p1, TurfConstants.UNIT_METERS))
+    override fun compare(p0: Supplier<Point>, p1: Supplier<Point>): Int {
+        return TurfMeasurement.distance(origin, p0.get(), TurfConstants.UNIT_METERS)
+            .compareTo(TurfMeasurement.distance(origin, p1.get(), TurfConstants.UNIT_METERS))
     }
 }

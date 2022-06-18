@@ -6,10 +6,11 @@ import com.mapbox.navigation.ui.maps.util.CacheResultUtils
 import com.mapbox.navigation.ui.maps.util.CacheResultUtils.cacheResult
 import com.mapbox.turf.TurfConstants
 import com.mapbox.turf.TurfMeasurement
+import java.util.function.Supplier
 
-class LocationSearchTree(private val capacity: Int = 32, private val distanceCalculationCacheCapacity: Int = 500) {
+class LocationSearchTree<T: Supplier<Point>>(private val capacity: Int = 32, private val distanceCalculationCacheCapacity: Int = 500) {
 
-    private var rootNode: LocationTreeNode? = null
+    private var rootNode: LocationTreeNode<T>? = null
     private val distanceCalculationCache : LruCache<
         CacheResultUtils.CacheResultKey2<
             Point,
@@ -22,11 +23,11 @@ class LocationSearchTree(private val capacity: Int = 32, private val distanceCal
 
     fun isEmpty() = size() == 0
 
-    fun add(point: Point) {
+    fun add(point: T) {
         addAll(listOf(point))
     }
 
-    fun addAll(points: List<Point>) {
+    fun addAll(points: List<T>) {
         if (rootNode == null) {
             rootNode = LocationTreeNode(points.toMutableList(), capacity, distanceCalcFunction)
         } else {
@@ -39,11 +40,11 @@ class LocationSearchTree(private val capacity: Int = 32, private val distanceCal
         }
     }
 
-    fun remove(point: Point) {
+    fun remove(point: T) {
         removeAll(listOf(point))
     }
 
-    fun removeAll(points: List<Point>) {
+    fun removeAll(points: List<T>) {
         var pointRemoved = false
         rootNode?.let { theRootNode ->
             points.forEach {
@@ -63,11 +64,11 @@ class LocationSearchTree(private val capacity: Int = 32, private val distanceCal
 
     fun getNearestNeighbor(target: Point) = getNearestNeighbors(target, 1).firstOrNull()
 
-    fun getNearestNeighbors(target: Point, maxResults: Int): List<Point> {
+    fun getNearestNeighbors(target: Point, maxResults: Int): List<T> {
         return if (rootNode == null) {
             listOf()
         } else {
-            val collector = NearestNeighborCollector(target, maxResults)
+            val collector: NearestNeighborCollector<T> = NearestNeighborCollector(target, maxResults)
             rootNode?.collectNearestNeighbors(collector)
             collector.toSortedList()
         }
