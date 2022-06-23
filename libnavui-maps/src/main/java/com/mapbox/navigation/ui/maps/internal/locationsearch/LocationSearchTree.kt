@@ -8,7 +8,10 @@ import com.mapbox.turf.TurfConstants
 import com.mapbox.turf.TurfMeasurement
 import java.util.function.Supplier
 
-class LocationSearchTree<T: Supplier<Point>>(private val capacity: Int = 32, private val distanceCalculationCacheCapacity: Int = 500) {
+class LocationSearchTree<T: Supplier<Point>>(
+    private val capacity: Int = 32,
+    private val distanceCalculationCacheCapacity: Int = 500
+) {
 
     private var rootNode: LocationTreeNode<T>? = null
     private val distanceCalculationCache : LruCache<

@@ -1,5 +1,9 @@
 package com.mapbox.navigation.ui.maps.internal.locationsearch
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import com.mapbox.bindgen.Expected
 import com.mapbox.bindgen.ExpectedFactory
 import com.mapbox.geojson.Point
@@ -11,7 +15,10 @@ import java.util.function.Consumer
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class CityHighwayMapApi(private val locationSearchTree: LocationSearchTree<EnhancedPoint> = LocationSearchTree()) {
+class CityHighwayMapApi(
+    private val locationSearchTree: LocationSearchTree<EnhancedPoint> = LocationSearchTree(),
+    private val chmImageProvider: () -> Bitmap
+) {
 
     private val jobControl = InternalJobControlFactory.createDefaultScopeJobControl()
     private var currentMapType: CityHighwayMap? = null
@@ -50,15 +57,54 @@ class CityHighwayMapApi(private val locationSearchTree: LocationSearchTree<Enhan
         //view class to render
     }
 
+    fun getMapImage(currentLocation: Point?, resultConsumer: Consumer<Expected<CHMError, CityHighwayBitmap>>) {
+        getMapData(currentLocation) { expectedResult ->
+            expectedResult.fold(
+                {
+                    ExpectedFactory.createValue<CHMError, CityHighwayBitmap>(CityHighwayBitmap(chmImageProvider.invoke()))
+                },{
+                    ifNonNull(it.pointPixelData.getChmCoordinates()) { imageCoordinates ->
+                        updateCHMImage(imageCoordinates.first, imageCoordinates.second, chmImageProvider.invoke()).run {
+                            ExpectedFactory.createValue<CHMError, CityHighwayBitmap>(CityHighwayBitmap(this))
+                        }
+                    } ?: ExpectedFactory.createValue<CHMError, CityHighwayBitmap>(CityHighwayBitmap(chmImageProvider.invoke()))
+            }).apply {
+                resultConsumer.accept(this)
+            }
+        }
+    }
+
+    private fun updateCHMImage(x: Float, y: Float, bitmap: Bitmap): Bitmap {
+        val canvas = Canvas(bitmap)
+        val paint = Paint().apply {
+            isAntiAlias = true
+            color = Color.parseColor("#ffcc00")
+            style = Paint.Style.FILL
+        }
+        canvas.drawBitmap(bitmap, 0f, 0f, null)
+        canvas.drawCircle(x, y, 10f, paint)
+        return bitmap
+    }
+
+
+
     fun cancel() {
         jobControl.job.cancelChildren()
         locationSearchTree.clear()
     }
 }
 // temporary, move this somewhere else
-suspend fun CityHighwayMapApi.getMapData(currentLocation: Point?): Expected<CHMError,CHMResult> {
+suspend fun CityHighwayMapApi.getCityHighwayMapData(currentLocation: Point?): Expected<CHMError,CHMResult> {
     return suspendCoroutine { continuation ->
         this.getMapData(currentLocation) { value ->
+            continuation.resume(value)
+        }
+    }
+}
+
+suspend fun CityHighwayMapApi.getCityHighwayMapImage(currentLocation: Point?): Expected<CHMError, CityHighwayBitmap> {
+    return suspendCoroutine { continuation ->
+        this.getMapImage(currentLocation) { value ->
             continuation.resume(value)
         }
     }

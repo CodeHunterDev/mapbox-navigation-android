@@ -64,10 +64,14 @@ import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.examples.core.databinding.LayoutActivityRoutelineExampleBinding
 import com.mapbox.navigation.ui.maps.NavigationStyles
+import com.mapbox.navigation.ui.maps.internal.locationsearch.CityHighwayMap
+import com.mapbox.navigation.ui.maps.internal.locationsearch.CityHighwayMapApi
 import com.mapbox.navigation.ui.maps.internal.locationsearch.EnhancedPoint
 import com.mapbox.navigation.ui.maps.internal.locationsearch.LocationSearchTree
 import com.mapbox.navigation.ui.maps.internal.locationsearch.LocationSearchUtil
 import com.mapbox.navigation.ui.maps.internal.locationsearch.XB03PointToPixelMap
+import com.mapbox.navigation.ui.maps.internal.locationsearch.getCityHighwayMapData
+import com.mapbox.navigation.ui.maps.internal.locationsearch.getCityHighwayMapImage
 import com.mapbox.navigation.ui.maps.location.NavigationLocationProvider
 import com.mapbox.navigation.ui.maps.route.RouteLayerConstants.TOP_LEVEL_ROUTE_LINE_LAYER_ID
 import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowApi
@@ -136,14 +140,20 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
         viewBinding.mapView.camera
     }
 
-    private val locationSearchTree by lazy {
-        LocationSearchTree<Supplier<Point>>().also {
-            val points = preRecordedPoints2.map {
-                Supplier<Point> { it }
-            }
-            it.addAll(points)
+    private val chmApi: CityHighwayMapApi by lazy {
+        CityHighwayMapApi(chmImageProvider = tmpCHMBitmapProvider).also {
+            it.setMap(CityHighwayMap.XB03)
         }
     }
+
+//    private val locationSearchTree by lazy {
+//        LocationSearchTree<Supplier<Point>>().also {
+//            val points = preRecordedPoints2.map {
+//                Supplier<Point> { it }
+//            }
+//            it.addAll(points)
+//        }
+//    }
 
     // RouteLine: Route line related colors can be customized via the RouteLineColorResources.
     private val routeLineColorResources by lazy {
@@ -366,6 +376,15 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
         viewBinding.startNavigation.visibility = View.VISIBLE
     }
 
+    private val tmpCHMBitmapProvider = {
+        viewBinding.mapImage.invalidate()
+
+        BitmapFactory.decodeResource(
+            resources,
+            R.drawable.xbo3
+        ).copy(Bitmap.Config.ARGB_8888, true)
+    }
+
     fun updateCHMImage(x: Float, y: Float) {
         viewBinding.mapImage.invalidate()
 
@@ -548,12 +567,21 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
 
             Log.e("foobar", "touchpoint is $point")
             job.scope.launch(Dispatchers.Main) {
-                val start = System.currentTimeMillis()
-                val nearestDef = async { locationSearchTree.getNearestNeighbor(point) }
-                nearestDef.await()?.apply {
-                    Log.e("foobar", "my closest point = $this time take is ${System.currentTimeMillis() - start}")
-                    highLightPointOnMap(this.get())
+                //val start = System.currentTimeMillis()
+                val nearestDef = async {
+                    //locationSearchTree.getNearestNeighbor(point)
+                    chmApi.getCityHighwayMapData(point)
                 }
+                nearestDef.await().fold({
+                    Log.e("foobar", "error getting getNearestNeighbor ${it.errorMessage}")
+                },{
+                    highLightPointOnMap(it.pointPixelData.get())
+                })
+
+//                nearestDef.await()?.apply {
+//                    Log.e("foobar", "my closest point = $this time take is ${System.currentTimeMillis() - start}")
+//                    highLightPointOnMap(this.get())
+//                }
             }
 
             // job.scope.launch(Dispatchers.Main) {
@@ -598,19 +626,44 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
 
             job.scope.launch(Dispatchers.Main) {
                 //val start = System.currentTimeMillis()
-                val nearestDef = async { locationSearchTree.getNearestNeighbor(currentLocPoint) }
-                nearestDef.await()?.apply {
-                    //Log.e("foobar", "my closest point = $this time take is ${System.currentTimeMillis() - start}")
-                    highLightPointOnMap(this.get())
 
-                    interpolatedPixelMap.firstOrNull { it.first == this.get() }?.apply {
-                        updateCHMImage(this.second.first, this.second.second)
-                    }
-                    //val misses = locationSearchTree.getDistanceCalculationCacheMisses()
-                    //val cacheMissDelta = misses - cacheMisses
-                    //cacheMisses = misses
-                    //Log.e("foobar", "cache hits = ${locationSearchTree.getDistanceCalculationCacheHits()}, miss delta is = $cacheMissDelta")
+
+
+
+                val nearestDef = async {
+                    //locationSearchTree.getNearestNeighbor(currentLocPoint)
+                    chmApi.getCityHighwayMapData(currentLocPoint)
                 }
+                nearestDef.await().fold({
+                    Log.e("foobar", "*** ${it.errorMessage}")
+                },{
+                    highLightPointOnMap(it.pointPixelData.get())
+                })
+
+                val bitMapDef = async {
+                    chmApi.getCityHighwayMapImage(currentLocPoint)
+                }
+                bitMapDef.await().apply {
+                    this.fold( {
+                        Log.e("foobar", "error getting CHM bitmap ${it.errorMessage}")
+                    },{
+                        viewBinding.mapImage.setImageBitmap(it.bitmap)
+                    })
+                }
+
+
+//                nearestDef.await()?.apply {
+//                    //Log.e("foobar", "my closest point = $this time take is ${System.currentTimeMillis() - start}")
+//                    highLightPointOnMap(this.get())
+//
+//                    interpolatedPixelMap.firstOrNull { it.first == this.get() }?.apply {
+//                        updateCHMImage(this.second.first, this.second.second)
+//                    }
+//                    //val misses = locationSearchTree.getDistanceCalculationCacheMisses()
+//                    //val cacheMissDelta = misses - cacheMisses
+//                    //cacheMisses = misses
+//                    //Log.e("foobar", "cache hits = ${locationSearchTree.getDistanceCalculationCacheHits()}, miss delta is = $cacheMissDelta")
+//                }
             }
         }
     }
