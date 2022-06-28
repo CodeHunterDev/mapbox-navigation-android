@@ -74,7 +74,7 @@
         app:layout_constraintEnd_toEndOf="@+id/mapView"
         app:layout_constraintStart_toStartOf="@+id/mapView"
         app:layout_constraintTop_toTopOf="parent"
-        android:src="@drawable/xbo3"
+        android:src="@drawable/xb03"
         android:visibility="invisible"/>
 
     <Button

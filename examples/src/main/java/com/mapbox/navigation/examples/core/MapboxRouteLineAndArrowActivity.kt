@@ -24,7 +24,6 @@ import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
-import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.EdgeInsets
@@ -66,9 +65,8 @@ import com.mapbox.navigation.examples.core.databinding.LayoutActivityRoutelineEx
 import com.mapbox.navigation.ui.maps.NavigationStyles
 import com.mapbox.navigation.ui.maps.internal.locationsearch.CityHighwayMap
 import com.mapbox.navigation.ui.maps.internal.locationsearch.CityHighwayMapApi
-import com.mapbox.navigation.ui.maps.internal.locationsearch.EnhancedPoint
-import com.mapbox.navigation.ui.maps.internal.locationsearch.LocationSearchTree
 import com.mapbox.navigation.ui.maps.internal.locationsearch.LocationSearchUtil
+import com.mapbox.navigation.ui.maps.internal.locationsearch.XB01PointToPixelMap
 import com.mapbox.navigation.ui.maps.internal.locationsearch.XB03PointToPixelMap
 import com.mapbox.navigation.ui.maps.internal.locationsearch.getCityHighwayMapData
 import com.mapbox.navigation.ui.maps.internal.locationsearch.getCityHighwayMapImage
@@ -84,16 +82,12 @@ import com.mapbox.navigation.ui.maps.route.line.model.RouteLine
 import com.mapbox.navigation.ui.maps.route.line.model.RouteLineColorResources
 import com.mapbox.navigation.ui.maps.route.line.model.RouteLineResources
 import com.mapbox.navigation.utils.internal.InternalJobControlFactory
-import com.mapbox.navigation.utils.internal.ifNonNull
-import com.mapbox.navigation.utils.internal.parallelMap
 import com.mapbox.turf.TurfConstants
 import com.mapbox.turf.TurfMeasurement
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
-import java.util.function.Supplier
 
 /**
  * This class demonstrates the usage of the route line and route arrow API's. There is
@@ -381,7 +375,7 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
 
         BitmapFactory.decodeResource(
             resources,
-            R.drawable.xbo3
+            R.drawable.xb01
         ).copy(Bitmap.Config.ARGB_8888, true)
     }
 
@@ -389,8 +383,8 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
         viewBinding.mapImage.invalidate()
 
         val mapImage = BitmapFactory.decodeResource(
-            getResources(),
-            R.drawable.xbo3
+            resources,
+            R.drawable.xb01
         ).copy(Bitmap.Config.ARGB_8888, true)
 
 
@@ -701,6 +695,7 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
                 viewBinding.mapView.gestures.addOnMapLongClickListener(this)
                 val route = loadRoute()
                 val routeOrigin = getRouteOrigin(route)
+                val lastPoint = getRouteEnd(route)
                 val cameraOptions = CameraOptions.Builder().center(routeOrigin).zoom(14.0).build()
                 mapboxMap.setCamera(cameraOptions)
                 mapboxNavigation.setRoutes(listOf(route))
@@ -886,8 +881,11 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
     fun getRouteOrigin(route: DirectionsRoute) =
         route.completeGeometryToLineString().coordinates().first()
 
+    fun getRouteEnd(route: DirectionsRoute) =
+        route.completeGeometryToLineString().coordinates().last()
+
     fun loadRoute(): DirectionsRoute {
-        val routeAsJson = readRawFileText(this, R.raw.temp_delete_me_route3)
+        val routeAsJson = readRawFileText(this, R.raw.temp_delete_me_route4)
         return DirectionsRoute.fromJson(routeAsJson)
     }
 
@@ -926,7 +924,7 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
     }
 
     private val interpolatedPixelMap: List<Pair<Point, Pair<Float, Float>>>  by lazy {
-        val intermediatePoints = XB03PointToPixelMap.getPointCollections().flatten().distinct()
+        val intermediatePoints = XB01PointToPixelMap.getPointCollections().flatten().distinct()
         LocationSearchUtil.interpolateScreenCoordinates(intermediatePoints)
         intermediatePoints.map {
             Pair(it.get(), it.getChmCoordinates()!!) // this shouldn't be null but I want to know if it is
@@ -1324,46 +1322,80 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
 
     private val preRecordedPoints2 by lazy {
         listOf(
-            Point.fromLngLat(135.335067, 34.367225),
-            Point.fromLngLat(135.330057, 34.365102),
-            Point.fromLngLat(135.32527815702858, 34.362638362967665),
-            Point.fromLngLat(135.3209147864749, 34.35966160028519),
-            Point.fromLngLat(135.3156843848616, 34.3580133074278),
-            Point.fromLngLat(135.310547, 34.356502),
-            Point.fromLngLat(135.304849, 34.356555),
-            Point.fromLngLat(135.29921849660917, 34.35616122278719),
-            Point.fromLngLat(135.29443057339964, 34.35388284162661),
-            Point.fromLngLat(135.2896986813133, 34.35153616651273),
-            Point.fromLngLat(135.285237, 34.348807),
-            Point.fromLngLat(135.28019506184927, 34.34661946801923),
-            Point.fromLngLat(135.2747989879227, 34.34521499215519),
-            Point.fromLngLat(135.26967530017, 34.34319819476324),
-            Point.fromLngLat(135.26771420251185, 34.33899813190379),
-            Point.fromLngLat(135.26901815550525, 34.334404021653455),
-            Point.fromLngLat(135.270795, 34.329914),
-            Point.fromLngLat(135.26859766462553, 34.325738735205505),
-            Point.fromLngLat(135.2681350716079, 34.32112912766433),
-            Point.fromLngLat(135.27129943242164, 34.31736256484757),
-            Point.fromLngLat(135.2703908260444, 34.31276625724003),
-            Point.fromLngLat(135.271033, 34.308102),
-            Point.fromLngLat(135.271322, 34.303573),
-            Point.fromLngLat(135.272342, 34.298944),
-            Point.fromLngLat(135.271994765009, 34.29429874319405),
-            Point.fromLngLat(135.27048069996883, 34.289964830901425),
-            Point.fromLngLat(135.2721624297202, 34.28568289734952),
-            Point.fromLngLat(135.27109699983245, 34.28126750006145),
-            Point.fromLngLat(135.2663142198558, 34.27869606143935),
-            Point.fromLngLat(135.2606889110079, 34.2790072913169),
-            Point.fromLngLat(135.2556538226855, 34.2772035348248),
-            Point.fromLngLat(135.25046, 34.275346),
-            Point.fromLngLat(135.24496293094973, 34.27515146408352),
-            Point.fromLngLat(135.23980916895817, 34.27340826196722),
-            Point.fromLngLat(135.23503237528473, 34.27104712896143),
-            Point.fromLngLat(135.23065652357607, 34.26818657154899),
-            Point.fromLngLat(135.22656304152054, 34.264927164511924),
-            Point.fromLngLat(135.222785957099, 34.26146659085905),
-            Point.fromLngLat(135.21932829617572, 34.257757136429795),
-            Point.fromLngLat(135.216606, 34.253605),
+            Point.fromLngLat(139.791604, 35.518599),
+            Point.fromLngLat(139.79687440512663, 35.51668904475685),
+            Point.fromLngLat(139.80152965349603, 35.513964812634036),
+            Point.fromLngLat(139.80583687545993, 35.5110305352397),
+            Point.fromLngLat(139.8101437826156, 35.508096104758536),
+            Point.fromLngLat(139.81445037500376, 35.50516152121836),
+            Point.fromLngLat(139.818756652665, 35.50222678464692),
+            Point.fromLngLat(139.8230626156401, 35.49929189507197),
+            Point.fromLngLat(139.82736826396967, 35.496356852521274),
+            Point.fromLngLat(139.83167359769445, 35.49342165702257),
+            Point.fromLngLat(139.83598280442143, 35.49048773715759),
+            Point.fromLngLat(139.84029767860105, 35.487555704680986),
+            Point.fromLngLat(139.84461223792735, 35.484623518616466),
+            Point.fromLngLat(139.84892648244087, 35.48169117899189),
+            Point.fromLngLat(139.85324041218226, 35.478758685835054),
+            Point.fromLngLat(139.85755402719204, 35.4758260391738),
+            Point.fromLngLat(139.8618673275108, 35.47289323903596),
+            Point.fromLngLat(139.8661803131791, 35.46996028544934),
+            Point.fromLngLat(139.87049298423747, 35.46702717844176),
+            Point.fromLngLat(139.87480375713338, 35.46409237605334),
+            Point.fromLngLat(139.87913907581674, 35.46119533653849),
+            Point.fromLngLat(139.88346225402267, 35.45829623530968),
+            Point.fromLngLat(139.88775526208119, 35.455364299198386),
+            Point.fromLngLat(139.8920479572645, 35.45243221111089),
+            Point.fromLngLat(139.89634033961306, 35.44949997107472),
+            Point.fromLngLat(139.90063240916737, 35.44656757911739),
+            Point.fromLngLat(139.90492416596788, 35.443635035266446),
+            Point.fromLngLat(139.9092156100551, 35.44070233954942),
+            Point.fromLngLat(139.91374762703344, 35.437950361185365),
+            Point.fromLngLat(139.918648196875, 35.43588061367041),
+            Point.fromLngLat(139.92317650147504, 35.432935750606745),
+            Point.fromLngLat(139.9270987183858, 35.42941903824267),
+            Point.fromLngLat(139.9308763029487, 35.426008200692344),
+            Point.fromLngLat(139.9348705583603, 35.42284997220032),
+            Point.fromLngLat(139.93959931928333, 35.42021983323077),
+            Point.fromLngLat(139.94449083381068, 35.41807310406041),
+            Point.fromLngLat(139.94943350807029, 35.415856306286145),
+            Point.fromLngLat(139.954532, 35.4136),
+            Point.fromLngLat(139.959174, 35.410904),
+            Point.fromLngLat(139.96294117019883, 35.407493947671846),
+            Point.fromLngLat(139.96582, 35.403493),
+            Point.fromLngLat(139.96764933355004, 35.39901715803431),
+            Point.fromLngLat(139.96868785032123, 35.39456771258702),
+            Point.fromLngLat(139.97048852114594, 35.39012845821664),
+            Point.fromLngLat(139.97344676560846, 35.38615831280797),
+            Point.fromLngLat(139.9767107385583, 35.382391349153),
+            Point.fromLngLat(139.97919834597246, 35.378154406386415),
+            Point.fromLngLat(139.98118778952576, 35.373797034390975),
+            Point.fromLngLat(139.984449, 35.369946),
+            Point.fromLngLat(139.98905800044037, 35.367266667047474),
+            Point.fromLngLat(139.9943627921376, 35.36577622893744),
+            Point.fromLngLat(139.999428, 35.363816),
+            Point.fromLngLat(140.00364590633762, 35.360847727715175),
+            Point.fromLngLat(140.0083501827117, 35.35809595186307),
+            Point.fromLngLat(140.01377373520697, 35.3568093052269),
+            Point.fromLngLat(140.01958725496127, 35.35706012374683),
+            Point.fromLngLat(140.02532277569773, 35.35773140742848),
+            Point.fromLngLat(140.0309116535604, 35.357863538690204),
+            Point.fromLngLat(140.03654699750254, 35.35771762176733),
+            Point.fromLngLat(140.04205179498572, 35.35855422244616),
+            Point.fromLngLat(140.04763354362038, 35.35921599860255),
+            Point.fromLngLat(140.053327, 35.359233),
+            Point.fromLngLat(140.05901440483842, 35.35912474467167),
+            Point.fromLngLat(140.06459997307456, 35.3590512193889),
+            Point.fromLngLat(140.07033924321615, 35.35908682881253),
+            Point.fromLngLat(140.07588275326572, 35.3597574449574),
+            Point.fromLngLat(140.08128673791177, 35.36101634155877),
+            Point.fromLngLat(140.0868933786049, 35.36218333129008),
+            Point.fromLngLat(140.09254472171568, 35.362697566347705),
+            Point.fromLngLat(140.09830325764898, 35.36259580629173),
+            Point.fromLngLat(140.10405092649754, 35.362314976329664),
+            Point.fromLngLat(140.10960146567032, 35.362074640943234),
+            Point.fromLngLat(140.11518433330278, 35.36190900050119),
+            Point.fromLngLat(140.120738395858, 35.36264776455754),
         )
     }
 
@@ -1539,15 +1571,17 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
     }
 
     private fun showBounds() {
-        val feature = Feature.fromGeometry(LineString.fromLngLats(
-            listOf(
-                Point.fromLngLat(134.8722536, 35.0032252), // north west
-                Point.fromLngLat(135.7471644, 35.0032252), // north east
-                Point.fromLngLat(135.7471644, 34.253293), // south east
-                Point.fromLngLat(134.8722536, 34.253293), // south west
-                Point.fromLngLat(134.8722536, 35.0032252) // close to north west
-            )
-        ))
+        val feature = XB01PointToPixelMap.getBounds()
+
+//        Feature.fromGeometry(LineString.fromLngLats(
+//            listOf(
+//                Point.fromLngLat(134.8722536, 35.0032252), // north west
+//                Point.fromLngLat(135.7471644, 35.0032252), // north east
+//                Point.fromLngLat(135.7471644, 34.253293), // south east
+//                Point.fromLngLat(134.8722536, 34.253293), // south west
+//                Point.fromLngLat(134.8722536, 35.0032252) // close to north west
+//            )
+//        ))
         (mapboxMap.getStyle()!!.getSource(BOUNDS_SOURCE) as GeoJsonSource).feature(feature)
     }
 
