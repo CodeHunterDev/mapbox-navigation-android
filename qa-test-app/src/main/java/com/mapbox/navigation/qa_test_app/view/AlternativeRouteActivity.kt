@@ -18,6 +18,8 @@ import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.EdgeInsets
+import com.mapbox.maps.Style.Companion.LIGHT
+import com.mapbox.maps.Style.Companion.OUTDOORS
 import com.mapbox.maps.plugin.animation.CameraAnimationsPlugin
 import com.mapbox.maps.plugin.animation.MapAnimationOptions
 import com.mapbox.maps.plugin.animation.camera
@@ -57,12 +59,20 @@ import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineApi
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineView
 import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineOptions
 import com.mapbox.navigation.ui.maps.route.line.model.RouteLineResources
+import com.mapbox.navigation.utils.internal.ifNonNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Arrays
 import java.util.concurrent.TimeUnit
 
 class AlternativeRouteActivity : AppCompatActivity(), OnMapLongClickListener {
+
+    private val mapStyles = listOf(
+        NavigationStyles.NAVIGATION_DAY_STYLE,
+        OUTDOORS,
+        LIGHT
+    )
 
     private companion object {
         private const val TAG = "AlternativeRouteActvt"
@@ -222,11 +232,10 @@ class AlternativeRouteActivity : AppCompatActivity(), OnMapLongClickListener {
     }
 
     private val onIndicatorPositionChangedListener = OnIndicatorPositionChangedListener { point ->
-        routeLineApi.updateTraveledRouteLine(point).let {
-            routeLineView.renderRouteLineUpdate(
-                binding.mapView.getMapboxMap().getStyle()!!,
-                it
-            )
+        routeLineApi.updateTraveledRouteLine(point).let { expected ->
+            ifNonNull(binding.mapView.getMapboxMap().getStyle()) {
+                routeLineView.renderRouteLineUpdate(it, expected)
+            }
         }
     }
 
@@ -315,6 +324,10 @@ class AlternativeRouteActivity : AppCompatActivity(), OnMapLongClickListener {
         }
 
         binding.mapView.gestures.addOnMapClickListener(mapClickListener)
+
+        binding.fabToggleStyle.setOnClickListener {
+            binding.mapView.getMapboxMap().loadStyleUri(mapStyles.shuffled().first())
+        }
     }
 
     private fun startSimulation(route: DirectionsRoute) {
