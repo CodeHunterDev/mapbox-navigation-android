@@ -696,7 +696,9 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
                 // mapboxNavigation.navigationOptions.locationEngine.getLastLocation(
                 //     locationEngineCallback
                 // )
-                //viewBinding.mapView.gestures.addOnMapLongClickListener(this)
+
+
+                viewBinding.mapView.gestures.addOnMapLongClickListener(this)
                 val route = loadRoute()
                 val routeOrigin = getRouteOrigin(route)
                 val cameraOptions = CameraOptions.Builder().center(routeOrigin).zoom(14.0).build()
@@ -737,14 +739,16 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
         viewBinding.startNavigation.visibility = View.GONE
         viewBinding.optionTrafficGradient.visibility = View.GONE
         val currentLocation = navigationLocationProvider.lastLocation
-        if (currentLocation != null) {
-            val originPoint = Point.fromLngLat(
-                currentLocation.longitude,
-                currentLocation.latitude
-            )
+        //if (currentLocation != null) {
+//            val originPoint = Point.fromLngLat(
+//                currentLocation.longitude,
+//                currentLocation.latitude
+//            )
+            val originPoint = preRecordedPoints2.last()
+
             findRoute(originPoint, point)
             viewBinding.routeLoadingProgressBar.visibility = View.VISIBLE
-        }
+        //}
         return false
     }
 
@@ -883,7 +887,7 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
         route.completeGeometryToLineString().coordinates().first()
 
     fun loadRoute(): DirectionsRoute {
-        val routeAsJson = readRawFileText(this, R.raw.temp_delete_me_route2)
+        val routeAsJson = readRawFileText(this, R.raw.temp_delete_me_route3)
         return DirectionsRoute.fromJson(routeAsJson)
     }
 
@@ -922,7 +926,7 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
     }
 
     private val interpolatedPixelMap: List<Pair<Point, Pair<Float, Float>>>  by lazy {
-        val intermediatePoints = XB03PointToPixelMap.pointToPixelForInterpolation2
+        val intermediatePoints = XB03PointToPixelMap.getPointCollections().flatten().distinct()
         LocationSearchUtil.interpolateScreenCoordinates(intermediatePoints)
         intermediatePoints.map {
             Pair(it.get(), it.getChmCoordinates()!!) // this shouldn't be null but I want to know if it is
@@ -1320,18 +1324,46 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
 
     private val preRecordedPoints2 by lazy {
         listOf(
-            Point.fromLngLat(135.301912, 34.408723),
-            Point.fromLngLat(135.30630850356116, 34.40573500172152),
-            Point.fromLngLat(135.31031322233918, 34.40254050180957),
-            Point.fromLngLat(135.31372179888464, 34.399031719010026),
-            Point.fromLngLat(135.3166981258145, 34.39507528106214),
-            Point.fromLngLat(135.3194479929101, 34.391177788049355),
-            Point.fromLngLat(135.32219815463566, 34.38728050721432),
-            Point.fromLngLat(135.3257254450907, 34.383639177315146),
-            Point.fromLngLat(135.32973159134343, 34.3802572459963),
-            Point.fromLngLat(135.33226446629243, 34.37604683188518),
-            Point.fromLngLat(135.33413122856064, 34.3718098826353),
             Point.fromLngLat(135.335067, 34.367225),
+            Point.fromLngLat(135.330057, 34.365102),
+            Point.fromLngLat(135.32527815702858, 34.362638362967665),
+            Point.fromLngLat(135.3209147864749, 34.35966160028519),
+            Point.fromLngLat(135.3156843848616, 34.3580133074278),
+            Point.fromLngLat(135.310547, 34.356502),
+            Point.fromLngLat(135.304849, 34.356555),
+            Point.fromLngLat(135.29921849660917, 34.35616122278719),
+            Point.fromLngLat(135.29443057339964, 34.35388284162661),
+            Point.fromLngLat(135.2896986813133, 34.35153616651273),
+            Point.fromLngLat(135.285237, 34.348807),
+            Point.fromLngLat(135.28019506184927, 34.34661946801923),
+            Point.fromLngLat(135.2747989879227, 34.34521499215519),
+            Point.fromLngLat(135.26967530017, 34.34319819476324),
+            Point.fromLngLat(135.26771420251185, 34.33899813190379),
+            Point.fromLngLat(135.26901815550525, 34.334404021653455),
+            Point.fromLngLat(135.270795, 34.329914),
+            Point.fromLngLat(135.26859766462553, 34.325738735205505),
+            Point.fromLngLat(135.2681350716079, 34.32112912766433),
+            Point.fromLngLat(135.27129943242164, 34.31736256484757),
+            Point.fromLngLat(135.2703908260444, 34.31276625724003),
+            Point.fromLngLat(135.271033, 34.308102),
+            Point.fromLngLat(135.271322, 34.303573),
+            Point.fromLngLat(135.272342, 34.298944),
+            Point.fromLngLat(135.271994765009, 34.29429874319405),
+            Point.fromLngLat(135.27048069996883, 34.289964830901425),
+            Point.fromLngLat(135.2721624297202, 34.28568289734952),
+            Point.fromLngLat(135.27109699983245, 34.28126750006145),
+            Point.fromLngLat(135.2663142198558, 34.27869606143935),
+            Point.fromLngLat(135.2606889110079, 34.2790072913169),
+            Point.fromLngLat(135.2556538226855, 34.2772035348248),
+            Point.fromLngLat(135.25046, 34.275346),
+            Point.fromLngLat(135.24496293094973, 34.27515146408352),
+            Point.fromLngLat(135.23980916895817, 34.27340826196722),
+            Point.fromLngLat(135.23503237528473, 34.27104712896143),
+            Point.fromLngLat(135.23065652357607, 34.26818657154899),
+            Point.fromLngLat(135.22656304152054, 34.264927164511924),
+            Point.fromLngLat(135.222785957099, 34.26146659085905),
+            Point.fromLngLat(135.21932829617572, 34.257757136429795),
+            Point.fromLngLat(135.216606, 34.253605),
         )
     }
 

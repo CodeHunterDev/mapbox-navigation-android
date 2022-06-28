@@ -14,7 +14,7 @@ class LocationSearchTreeTest {
         val testPointSuppliers = testPoints.map {
             Supplier<Point> { it }
         }
-        val tree = LocationSearchTree().also {
+        val tree = LocationSearchTree<Supplier<Point>>().also {
             it.addAll(testPointSuppliers.take(3))
         }
 
@@ -28,7 +28,7 @@ class LocationSearchTreeTest {
         val testPointSuppliers = testPoints.map {
             Supplier<Point> { it }
         }
-        val tree = LocationSearchTree().also {
+        val tree = LocationSearchTree<Supplier<Point>>().also {
             it.addAll(testPointSuppliers)
         }
         val expected = Point.fromLngLat(135.404270772023, 34.695821784837534)
@@ -36,7 +36,7 @@ class LocationSearchTreeTest {
 
         val nearest = tree.getNearestNeighbor(searchPoint)
 
-        assertEquals(expected, nearest)
+        assertEquals(expected, nearest!!.get())
     }
 
     @Test

@@ -35,8 +35,8 @@ class CityHighwayMapApi(
             pointToPixelCollectionsToInterpolate.forEach {
                 LocationSearchUtil.interpolateScreenCoordinates(it)
             }
-            pointToPixelCollectionsToInterpolate.flatten()
-            locationSearchTree.addAll(pointToPixelCollectionsToInterpolate.flatten())
+            //pointToPixelCollectionsToInterpolate.flatten()
+            locationSearchTree.addAll(pointToPixelCollectionsToInterpolate.flatten().distinct())
         }
     }
 

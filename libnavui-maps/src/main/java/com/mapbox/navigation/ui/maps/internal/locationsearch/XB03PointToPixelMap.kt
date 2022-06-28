@@ -14,8 +14,54 @@ object XB03PointToPixelMap {
 
     fun getPointCollections(): List<List<EnhancedPoint>> = listOf(
         pointToPixelForInterpolation,
-        pointToPixelForInterpolation2
+        pointToPixelForInterpolation2,
+        pointToPixelForInterpolation3
     )
+
+    val pointToPixelForInterpolation3: List<EnhancedPoint> by lazy {
+        listOf(
+            EnhancedPoint.KeyPoint(Point.fromLngLat(135.335067, 34.367225), Pair(190.0f, 1295f)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.330057, 34.365102)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.32527815702858, 34.362638362967665)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.3209147864749, 34.35966160028519)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.3156843848616, 34.3580133074278)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.310547, 34.356502)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.304849, 34.356555)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.29921849660917, 34.35616122278719)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.29443057339964, 34.35388284162661)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.2896986813133, 34.35153616651273)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.285237, 34.348807)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.28019506184927, 34.34661946801923)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.2747989879227, 34.34521499215519)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.26967530017, 34.34319819476324)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.26771420251185, 34.33899813190379)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.26901815550525, 34.334404021653455)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.270795, 34.329914)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.26859766462553, 34.325738735205505)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.2681350716079, 34.32112912766433)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.27129943242164, 34.31736256484757)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.2703908260444, 34.31276625724003)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.271033, 34.308102)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.271322, 34.303573)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.272342, 34.298944)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.271994765009, 34.29429874319405)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.27048069996883, 34.289964830901425)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.2721624297202, 34.28568289734952)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.27109699983245, 34.28126750006145)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.2663142198558, 34.27869606143935)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.2606889110079, 34.2790072913169)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.2556538226855, 34.2772035348248)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.25046, 34.275346)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.24496293094973, 34.27515146408352)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.23980916895817, 34.27340826196722)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.23503237528473, 34.27104712896143)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.23065652357607, 34.26818657154899)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.22656304152054, 34.264927164511924)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.222785957099, 34.26146659085905)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(135.21932829617572, 34.257757136429795)),
+            EnhancedPoint.KeyPoint(Point.fromLngLat(135.216606, 34.253605), Pair(10f, 1475f)),
+        )
+    }
 
     val pointToPixelForInterpolation2: List<EnhancedPoint> by lazy {
         listOf(
