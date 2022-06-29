@@ -28,6 +28,7 @@ class CityHighwayMapApi(
         currentMapType = mapType
 
         val pointToPixelCollectionsToInterpolate = when (mapType) {
+            CityHighwayMap.XB01 -> XB01PointToPixelMap.getPointCollections() //todo interface this
             CityHighwayMap.XB03 -> XB03PointToPixelMap.getPointCollections()
         }
 

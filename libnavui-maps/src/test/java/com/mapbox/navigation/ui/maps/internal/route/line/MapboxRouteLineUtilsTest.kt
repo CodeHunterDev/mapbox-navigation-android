@@ -1920,9 +1920,9 @@ class MapboxRouteLineUtilsTest {
     }
 
     @Test
-    fun temp() = runBlockingTest {
+    fun generatePreRecordedPoints() = runBlockingTest {
 
-        val route = loadRoute("temp-delete-me-route4.json")
+        val route = loadRoute("temp-delete-me-route.json")
         val routeGeometry = route.completeGeometryToLineString()
         val newPoints = mutableListOf<Point>(routeGeometry.coordinates().first())
 
