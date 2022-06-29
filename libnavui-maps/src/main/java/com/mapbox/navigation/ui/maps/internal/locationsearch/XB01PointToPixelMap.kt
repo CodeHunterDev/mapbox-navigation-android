@@ -88,7 +88,7 @@ object XB01PointToPixelMap {
             EnhancedPoint.KeyPoint(Point.fromLngLat(139.87743660991637, 35.639307507094465), Pair(1215f, 963f)),
             EnhancedPoint.MapPoint(Point.fromLngLat(139.88265500165943, 35.637697133252324)),
             EnhancedPoint.MapPoint(Point.fromLngLat(139.8882789484418, 35.638492306050885)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(139.8924423748377, 35.64150805641941)),
+            EnhancedPoint.KeyPoint(Point.fromLngLat(139.8924423748377, 35.64150805641941), Pair(1240f, 963f)),
             EnhancedPoint.MapPoint(Point.fromLngLat(139.89636088378643, 35.644779621501904)),
             EnhancedPoint.MapPoint(Point.fromLngLat(139.900279713643, 35.648051059660276)),
             EnhancedPoint.MapPoint(Point.fromLngLat(139.90436028377263, 35.65145724094441)),
@@ -102,7 +102,7 @@ object XB01PointToPixelMap {
             EnhancedPoint.MapPoint(Point.fromLngLat(139.93463179716977, 35.67890020114241)),
             EnhancedPoint.MapPoint(Point.fromLngLat(139.93892554405517, 35.682089702346346)),
             EnhancedPoint.MapPoint(Point.fromLngLat(139.94337886979417, 35.68483699621751)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(139.9478250774336, 35.68756223045331)),
+            EnhancedPoint.KeyPoint(Point.fromLngLat(139.9478250774336, 35.68756223045331), Pair(1350f, 850f)), //  intersection of B and higashi kanto
             EnhancedPoint.MapPoint(Point.fromLngLat(139.9524928313749, 35.69041286397442)),
             EnhancedPoint.MapPoint(Point.fromLngLat(139.95771046778145, 35.692513612458036)),
             EnhancedPoint.MapPoint(Point.fromLngLat(139.963261, 35.692137)),
