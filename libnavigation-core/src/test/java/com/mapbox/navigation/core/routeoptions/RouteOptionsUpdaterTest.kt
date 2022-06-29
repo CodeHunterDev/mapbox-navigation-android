@@ -6,11 +6,18 @@ import com.mapbox.api.directions.v5.models.Bearing
 import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.core.constants.Constants
 import com.mapbox.geojson.Point
+import com.mapbox.navigation.base.internal.extensions.indexOfNextCoordinate
+import com.mapbox.navigation.base.internal.route.Waypoint
+import com.mapbox.navigation.base.internal.utils._waypoints
 import com.mapbox.navigation.base.trip.model.RouteProgress
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
+import io.mockk.verify
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -35,9 +42,9 @@ class RouteOptionsUpdaterTest {
                 .coordinatesList(
                     listOf(
                         Point.fromLngLat(1.0, 1.0),
-                        Point.fromLngLat(1.0, 1.0),
-                        Point.fromLngLat(1.0, 1.0),
-                        Point.fromLngLat(1.0, 1.0)
+                        Point.fromLngLat(2.0, 2.0),
+                        Point.fromLngLat(3.0, 3.0),
+                        Point.fromLngLat(4.0, 4.0)
                     )
                 )
                 .build()
@@ -104,6 +111,14 @@ class RouteOptionsUpdaterTest {
                 .roundaboutExits(true)
                 .voiceInstructions(true)
 
+        private fun provideDefaultWaypointsList(): List<Waypoint> =
+            listOf(
+                Waypoint(Point.fromLngLat(1.0, 1.0), Waypoint.REGULAR, "", null),
+                Waypoint(Point.fromLngLat(2.0, 2.0), Waypoint.REGULAR, "", null),
+                Waypoint(Point.fromLngLat(3.0, 3.0), Waypoint.REGULAR, "", null),
+                Waypoint(Point.fromLngLat(4.0, 4.0), Waypoint.REGULAR, "", null),
+            )
+
         private fun Any?.isNullToString(): String = if (this == null) "Null" else "NonNull"
     }
 
@@ -120,6 +135,7 @@ class RouteOptionsUpdaterTest {
         val routeOptions = provideRouteOptionsWithCoordinates()
         val routeProgress: RouteProgress = mockk(relaxed = true) {
             every { remainingWaypoints } returns 1
+            every { navigationRoute._waypoints() } returns provideDefaultWaypointsList()
         }
 
         val newRouteOptions =
@@ -144,10 +160,11 @@ class RouteOptionsUpdaterTest {
     }
 
     @Test
-    fun new_options_return_with_bearing() {
+    fun new_options_return_with_bearings() {
         val routeOptions = provideRouteOptionsWithCoordinatesAndBearings()
         val routeProgress: RouteProgress = mockk(relaxed = true) {
             every { remainingWaypoints } returns 1
+            every { navigationRoute._waypoints() } returns provideDefaultWaypointsList()
         }
 
         val newRouteOptions =
@@ -179,6 +196,7 @@ class RouteOptionsUpdaterTest {
         val routeOptions = provideRouteOptionsWithCoordinates()
         val routeProgress: RouteProgress = mockk(relaxed = true) {
             every { remainingWaypoints } returns 2
+            every { navigationRoute._waypoints() } returns provideDefaultWaypointsList()
         }
 
         val newRouteOptions =
@@ -210,6 +228,9 @@ class RouteOptionsUpdaterTest {
                 .build()
             val routeProgress: RouteProgress = mockk(relaxed = true) {
                 every { remainingWaypoints } returns 2
+                every {
+                    navigationRoute._waypoints()
+                } returns provideDefaultWaypointsList()
             }
 
             val newRouteOptions =
@@ -237,6 +258,7 @@ class RouteOptionsUpdaterTest {
         val routeOptions = provideRouteOptionsWithCoordinatesAndLayers()
         val routeProgress: RouteProgress = mockk(relaxed = true) {
             every { remainingWaypoints } returns 2
+            every { navigationRoute._waypoints() } returns provideDefaultWaypointsList()
         }
 
         val newRouteOptions =
@@ -268,6 +290,25 @@ class RouteOptionsUpdaterTest {
     }
 
     @Test
+    fun index_of_next_coordinate_is_null() {
+        mockkStatic("com.mapbox.navigation.base.internal.extensions.WaypointEx") {
+            val routeOptions = provideRouteOptionsWithCoordinatesAndBearings()
+            val routeProgress: RouteProgress = mockk(relaxed = true) {
+                every { remainingWaypoints } returns 0
+                // list size 1
+                every { navigationRoute.routeOptions.coordinatesList() } returns listOf(mockk())
+            }
+            every { indexOfNextCoordinate(any(), any()) } returns null
+
+            val newRouteOptions =
+                routeRefreshAdapter.update(routeOptions, routeProgress, locationMatcherResult)
+
+            verify(exactly = 1) { indexOfNextCoordinate(any(), any()) }
+            assertTrue(newRouteOptions is RouteOptionsUpdater.RouteOptionsResult.Error)
+        }
+    }
+
+    @Test
     fun no_options_on_invalid_input() {
         val invalidInput = listOf<Triple<RouteOptions?, RouteProgress?, LocationMatcherResult?>>(
             Triple(null, mockk(), mockk()),
@@ -294,6 +335,7 @@ class RouteOptionsUpdaterTest {
         val routeOptions = provideRouteOptionsWithCoordinatesAndArriveByDepartAt()
         val routeProgress: RouteProgress = mockk(relaxed = true) {
             every { remainingWaypoints } returns 1
+            every { navigationRoute._waypoints() } returns provideDefaultWaypointsList()
         }
 
         val newRouteOptions =
@@ -323,7 +365,7 @@ class RouteOptionsUpdaterTest {
     @RunWith(Parameterized::class)
     class BearingOptionsParameterized(
         val routeOptions: RouteOptions,
-        val remainingWaypointsParameter: Int,
+        val indexNextCoordinate: Int,
         val expectedBearings: List<Bearing?>
     ) {
 
@@ -336,7 +378,7 @@ class RouteOptionsUpdaterTest {
             fun params() = listOf(
                 arrayOf(
                     provideRouteOptionsWithCoordinatesAndBearings(),
-                    3,
+                    1,
                     listOf(
                         Bearing.builder()
                             .angle(DEFAULT_REROUTE_BEARING_ANGLE.toDouble())
@@ -358,7 +400,7 @@ class RouteOptionsUpdaterTest {
                 ),
                 arrayOf(
                     provideRouteOptionsWithCoordinates(),
-                    1,
+                    3,
                     listOf(
                         Bearing.builder()
                             .angle(DEFAULT_REROUTE_BEARING_ANGLE.toDouble())
@@ -405,7 +447,7 @@ class RouteOptionsUpdaterTest {
                             )
                         )
                         .build(),
-                    3,
+                    1,
                     listOf(
                         Bearing.builder()
                             .angle(DEFAULT_REROUTE_BEARING_ANGLE.toDouble())
@@ -423,14 +465,20 @@ class RouteOptionsUpdaterTest {
         fun setup() {
             MockKAnnotations.init(this, relaxUnitFun = true, relaxed = true)
             mockLocation()
+            mockkStatic("com.mapbox.navigation.base.internal.extensions.WaypointEx")
 
             routeRefreshAdapter = RouteOptionsUpdater()
+        }
+
+        @After
+        fun cleanup() {
+            unmockkStatic("com.mapbox.navigation.base.internal.extensions.WaypointEx")
         }
 
         @Test
         fun bearingOptions() {
             val routeProgress: RouteProgress = mockk(relaxed = true) {
-                every { remainingWaypoints } returns remainingWaypointsParameter
+                every { indexOfNextCoordinate(any(), any()) } returns indexNextCoordinate
             }
 
             val newRouteOptions =
@@ -461,6 +509,7 @@ class RouteOptionsUpdaterTest {
 
     @RunWith(Parameterized::class)
     class SnappingClosuresOptionsParameterized(
+        val testDescription: String,
         val routeOptions: RouteOptions,
         val remainingWaypointsParameter: Int,
         val legIndex: Int,
@@ -472,21 +521,24 @@ class RouteOptionsUpdaterTest {
 
         companion object {
             @JvmStatic
-            @Parameterized.Parameters
+            @Parameterized.Parameters(name = "{0}")
             fun params() = listOf(
                 arrayOf(
+                    "",
                     provideRouteOptionsWithCoordinatesAndSnappingClosures(),
                     3,
                     0,
                     "true;false;true;false"
                 ),
                 arrayOf(
+                    "",
                     provideRouteOptionsWithCoordinates(),
                     1,
                     2,
                     null
                 ),
                 arrayOf(
+                    "",
                     provideRouteOptionsWithCoordinates().toBuilder()
                         .snappingIncludeClosuresList(
                             listOf(
@@ -502,6 +554,7 @@ class RouteOptionsUpdaterTest {
                     "false;false;false"
                 ),
                 arrayOf(
+                    "",
                     provideRouteOptionsWithCoordinates().toBuilder()
                         .snappingIncludeClosuresList(
                             listOf(
@@ -532,6 +585,7 @@ class RouteOptionsUpdaterTest {
             val routeProgress: RouteProgress = mockk(relaxed = true) {
                 every { remainingWaypoints } returns remainingWaypointsParameter
                 every { currentLegProgress?.legIndex } returns legIndex
+                every { navigationRoute._waypoints() } returns provideDefaultWaypointsList()
             }
 
             val newRouteOptions =

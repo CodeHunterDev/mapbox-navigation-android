@@ -12,6 +12,12 @@ interface SDKRouteParser {
         request: String,
         routerOrigin: RouterOrigin,
     ): Expected<String, List<RouteInterface>>
+
+    fun parseDirectionsRoutes(
+        directionsRoutes: String,
+        request: String,
+        routerOrigin: RouterOrigin,
+    ): Expected<String, List<RouteInterface>>
 }
 
 object NativeRouteParserWrapper : SDKRouteParser {
@@ -22,5 +28,14 @@ object NativeRouteParserWrapper : SDKRouteParser {
     ): Expected<String, List<RouteInterface>> =
         RouteParser.parseDirectionsResponse(
             response, request, routerOrigin.mapToNativeRouteOrigin()
+        )
+
+    override fun parseDirectionsRoutes(
+        directionsRoutes: String,
+        request: String,
+        routerOrigin: RouterOrigin,
+    ): Expected<String, List<RouteInterface>> =
+        RouteParser.parseDirectionsRoutes(
+            directionsRoutes, request, routerOrigin.mapToNativeRouteOrigin()
         )
 }

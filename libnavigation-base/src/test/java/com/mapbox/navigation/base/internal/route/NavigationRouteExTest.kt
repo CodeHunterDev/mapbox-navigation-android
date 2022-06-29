@@ -178,6 +178,7 @@ class NavigationRouteExTest {
                 every { routeInfo } returns mockk(relaxed = true)
                 every { routeId } returns ""
                 every { routerOrigin } returns RouterOrigin.ONLINE
+                every { waypoints } returns emptyList()
             }
         )
     }

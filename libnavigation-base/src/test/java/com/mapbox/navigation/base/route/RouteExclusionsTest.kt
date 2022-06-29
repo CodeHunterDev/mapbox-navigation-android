@@ -37,6 +37,7 @@ class RouteExclusionsTest {
                             every { routeInfo } returns mockk(relaxed = true)
                             every { routeId } returns "$it"
                             every { routerOrigin } returns com.mapbox.navigator.RouterOrigin.ONBOARD
+                            every { waypoints } returns emptyList()
                         }
                     )
                 }

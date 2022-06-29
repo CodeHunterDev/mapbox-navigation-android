@@ -41,6 +41,7 @@ class NavigationRouteTest {
                             every { routeInfo } returns mockk(relaxed = true)
                             every { routeId } returns "$it"
                             every { routerOrigin } returns com.mapbox.navigator.RouterOrigin.ONBOARD
+                            every { waypoints } returns emptyList()
                         }
                     )
                 }
@@ -260,6 +261,7 @@ class NavigationRouteTest {
                             every { routeInfo } returns mockk(relaxed = true)
                             every { routeId } returns "some_id"
                             every { routerOrigin } returns com.mapbox.navigator.RouterOrigin.ONBOARD
+                            every { waypoints } returns emptyList()
                         }
                     )
                 }

@@ -8,6 +8,8 @@ import com.mapbox.maps.MapboxMap
 import com.mapbox.maps.QueryFeaturesCallback
 import com.mapbox.maps.RenderedQueryOptions
 import com.mapbox.maps.ScreenCoordinate
+import com.mapbox.navigation.base.internal.route.Waypoint
+import com.mapbox.navigation.base.internal.utils._waypoints
 import com.mapbox.navigation.base.trip.model.RouteLegProgress
 import com.mapbox.navigation.base.trip.model.RouteProgress
 import io.mockk.every
@@ -23,106 +25,110 @@ class BuildingProcessorTest {
 
     @Test
     fun `map query on waypoint arrival with waypoint targets`() {
-        val mockOriginForWaypointTarget = Point.fromLngLat(-122.4192, 37.7627)
-        val mockWaypointForWaypointTarget = Point.fromLngLat(-122.4183, 37.7653)
-        val mockFinalForWaypointTarget = Point.fromLngLat(-122.4146, 37.7655)
-        val mockOriginForCoordinates = Point.fromLngLat(-122.4192, 37.7627)
-        val mockWaypointForCoordinates = Point.fromLngLat(-122.4182, 37.7651)
-        val mockFinalForCoordinates = Point.fromLngLat(-122.4145, 37.7653)
-        val mockRouteOptions = mockk<RouteOptions>(relaxed = true) {
-            every { coordinatesList() } returns listOf(
-                mockOriginForCoordinates,
-                mockWaypointForCoordinates,
-                mockFinalForCoordinates
-            )
-            every { waypointTargetsList() } returns listOf(
-                mockOriginForWaypointTarget,
-                mockWaypointForWaypointTarget,
-                mockFinalForWaypointTarget
-            )
-        }
-        val mockRoute = mockk<DirectionsRoute>(relaxed = true) {
-            every { routeOptions() } returns mockRouteOptions
-        }
+        val waypoints = listOf(
+            Waypoint(
+                Point.fromLngLat(-122.4192, 37.7627),
+                Waypoint.REGULAR,
+                "",
+                Point.fromLngLat(-122.4192, 37.7627),
+            ),
+            Waypoint(
+                Point.fromLngLat(-122.4182, 37.7651),
+                Waypoint.REGULAR,
+                "",
+                Point.fromLngLat(-122.4183, 37.7653),
+            ),
+            Waypoint(
+                Point.fromLngLat(-122.4145, 37.7653),
+                Waypoint.REGULAR,
+                "",
+                Point.fromLngLat(-122.4146, 37.7655),
+            ),
+        )
         val mockRouteLegProgress = mockk<RouteLegProgress>(relaxed = true) {
             every { legIndex } returns 0
         }
         val mockRouteProgress = mockk<RouteProgress>(relaxed = true) {
             every { currentLegProgress } returns mockRouteLegProgress
-            every { route } returns mockRoute
+            every { navigationRoute._waypoints() } returns waypoints
         }
         val mockAction = BuildingAction.QueryBuildingOnWaypoint(mockRouteProgress)
 
         val result = BuildingProcessor.queryBuildingOnWaypoint(mockAction)
 
-        assertEquals(result.point, mockWaypointForWaypointTarget)
+        assertEquals(waypoints[1].target!!, result.point)
     }
 
     @Test
     fun `map query on waypoint arrival with some waypoint targets`() {
-        val mockOriginForWaypointTarget = Point.fromLngLat(-122.4192, 37.7627)
-        val mockWaypointForWaypointTarget = null
-        val mockFinalForWaypointTarget = Point.fromLngLat(-122.4146, 37.7655)
-        val mockOriginForCoordinates = Point.fromLngLat(-122.4192, 37.7627)
-        val mockWaypointForCoordinates = Point.fromLngLat(-122.4182, 37.7651)
-        val mockFinalForCoordinates = Point.fromLngLat(-122.4145, 37.7653)
-        val mockRouteOptions = mockk<RouteOptions>(relaxed = true) {
-            every { coordinatesList() } returns listOf(
-                mockOriginForCoordinates,
-                mockWaypointForCoordinates,
-                mockFinalForCoordinates
-            )
-            every { waypointTargetsList() } returns listOf(
-                mockOriginForWaypointTarget,
-                mockWaypointForWaypointTarget,
-                mockFinalForWaypointTarget
-            )
-        }
-        val mockRoute = mockk<DirectionsRoute>(relaxed = true) {
-            every { routeOptions() } returns mockRouteOptions
-        }
+        val waypoints = listOf(
+            Waypoint(
+                Point.fromLngLat(-122.4192, 37.7627),
+                Waypoint.REGULAR,
+                "",
+                Point.fromLngLat(-122.4192, 37.7627),
+            ),
+            Waypoint(
+                Point.fromLngLat(-122.4182, 37.7651),
+                Waypoint.REGULAR,
+                "",
+                null,
+            ),
+            Waypoint(
+                Point.fromLngLat(-122.4145, 37.7653),
+                Waypoint.REGULAR,
+                "",
+                Point.fromLngLat(-122.4146, 37.7655),
+            ),
+        )
         val mockRouteLegProgress = mockk<RouteLegProgress>(relaxed = true) {
             every { legIndex } returns 0
         }
         val mockRouteProgress = mockk<RouteProgress>(relaxed = true) {
             every { currentLegProgress } returns mockRouteLegProgress
-            every { route } returns mockRoute
+            every { navigationRoute._waypoints() } returns waypoints
         }
         val mockAction = BuildingAction.QueryBuildingOnWaypoint(mockRouteProgress)
 
         val result = BuildingProcessor.queryBuildingOnWaypoint(mockAction)
 
-        assertEquals(result.point, mockWaypointForCoordinates)
+        assertEquals(waypoints[1].location, result.point)
     }
 
     @Test
     fun `map query on waypoint arrival without waypoint targets`() {
-        val mockOriginForCoordinates = Point.fromLngLat(-122.4192, 37.7627)
-        val mockWaypointForCoordinates = Point.fromLngLat(-122.4182, 37.7651)
-        val mockFinalForCoordinates = Point.fromLngLat(-122.4145, 37.7653)
-        val mockRouteOptions = mockk<RouteOptions>(relaxed = true) {
-            every { coordinatesList() } returns listOf(
-                mockOriginForCoordinates,
-                mockWaypointForCoordinates,
-                mockFinalForCoordinates
-            )
-            every { waypointTargetsList() } returns null
-        }
-        val mockRoute = mockk<DirectionsRoute>(relaxed = true) {
-            every { routeOptions() } returns mockRouteOptions
-        }
+        val waypoints = listOf(
+            Waypoint(
+                Point.fromLngLat(-122.4192, 37.7627),
+                Waypoint.REGULAR,
+                "",
+                null,
+            ),
+            Waypoint(
+                Point.fromLngLat(-122.4182, 37.7651),
+                Waypoint.REGULAR,
+                "",
+                null,
+            ),
+            Waypoint(
+                Point.fromLngLat(-122.4145, 37.7653),
+                Waypoint.REGULAR,
+                "",
+                null,
+            ),
+        )
         val mockRouteLegProgress = mockk<RouteLegProgress>(relaxed = true) {
             every { legIndex } returns 0
         }
         val mockRouteProgress = mockk<RouteProgress>(relaxed = true) {
             every { currentLegProgress } returns mockRouteLegProgress
-            every { route } returns mockRoute
+            every { navigationRoute._waypoints() } returns waypoints
         }
         val mockAction = BuildingAction.QueryBuildingOnWaypoint(mockRouteProgress)
 
         val result = BuildingProcessor.queryBuildingOnWaypoint(mockAction)
 
-        assertEquals(result.point, mockWaypointForCoordinates)
+        assertEquals(waypoints[1].location, result.point)
     }
 
     @Test
@@ -150,69 +156,74 @@ class BuildingProcessorTest {
 
     @Test
     fun `map query on final destination arrival with waypoint targets`() {
-        val mockOriginForWaypointTarget = Point.fromLngLat(-122.4192, 37.7627)
-        val mockWaypointForWaypointTarget = Point.fromLngLat(-122.4183, 37.7653)
-        val mockFinalForWaypointTarget = Point.fromLngLat(-122.4146, 37.7655)
-        val mockOriginForCoordinates = Point.fromLngLat(-122.4192, 37.7627)
-        val mockWaypointForCoordinates = Point.fromLngLat(-122.4182, 37.7651)
-        val mockFinalForCoordinates = Point.fromLngLat(-122.4145, 37.7653)
-        val mockRouteOptions = mockk<RouteOptions>(relaxed = true) {
-            every { coordinatesList() } returns listOf(
-                mockOriginForCoordinates,
-                mockWaypointForCoordinates,
-                mockFinalForCoordinates
-            )
-            every { waypointTargetsList() } returns listOf(
-                mockOriginForWaypointTarget,
-                mockWaypointForWaypointTarget,
-                mockFinalForWaypointTarget
-            )
-        }
-        val mockRoute = mockk<DirectionsRoute>(relaxed = true) {
-            every { routeOptions() } returns mockRouteOptions
-        }
+        val waypoints = listOf(
+            Waypoint(
+                Point.fromLngLat(-122.4192, 37.7627),
+                Waypoint.REGULAR,
+                "",
+                Point.fromLngLat(-122.4192, 37.7627),
+            ),
+            Waypoint(
+                Point.fromLngLat(-122.4182, 37.7651),
+                Waypoint.REGULAR,
+                "",
+                Point.fromLngLat(-122.4183, 37.7653),
+            ),
+            Waypoint(
+                Point.fromLngLat(-122.4145, 37.7653),
+                Waypoint.REGULAR,
+                "",
+                Point.fromLngLat(-122.4146, 37.7655),
+            ),
+        )
         val mockRouteLegProgress = mockk<RouteLegProgress>(relaxed = true) {
             every { legIndex } returns 0
         }
         val mockRouteProgress = mockk<RouteProgress>(relaxed = true) {
             every { currentLegProgress } returns mockRouteLegProgress
-            every { route } returns mockRoute
+            every { navigationRoute._waypoints() } returns waypoints
         }
         val mockAction = BuildingAction.QueryBuildingOnFinalDestination(mockRouteProgress)
 
         val result = BuildingProcessor.queryBuildingOnFinalDestination(mockAction)
 
-        assertEquals(result.point, mockFinalForWaypointTarget)
+        assertEquals(waypoints.last().target!!, result.point)
     }
 
     @Test
     fun `map query on final destination arrival without waypoint targets`() {
-        val mockOriginForCoordinates = Point.fromLngLat(-122.4192, 37.7627)
-        val mockWaypointForCoordinates = Point.fromLngLat(-122.4182, 37.7651)
-        val mockFinalForCoordinates = Point.fromLngLat(-122.4145, 37.7653)
-        val mockRouteOptions = mockk<RouteOptions>(relaxed = true) {
-            every { coordinatesList() } returns listOf(
-                mockOriginForCoordinates,
-                mockWaypointForCoordinates,
-                mockFinalForCoordinates
-            )
-            every { waypointTargetsList() } returns null
-        }
-        val mockRoute = mockk<DirectionsRoute>(relaxed = true) {
-            every { routeOptions() } returns mockRouteOptions
-        }
+        val waypoints = listOf(
+            Waypoint(
+                Point.fromLngLat(-122.4192, 37.7627),
+                Waypoint.REGULAR,
+                "",
+                null,
+            ),
+            Waypoint(
+                Point.fromLngLat(-122.4182, 37.7651),
+                Waypoint.REGULAR,
+                "",
+                null,
+            ),
+            Waypoint(
+                Point.fromLngLat(-122.4145, 37.7653),
+                Waypoint.REGULAR,
+                "",
+                null,
+            ),
+        )
         val mockRouteLegProgress = mockk<RouteLegProgress>(relaxed = true) {
             every { legIndex } returns 0
         }
         val mockRouteProgress = mockk<RouteProgress>(relaxed = true) {
             every { currentLegProgress } returns mockRouteLegProgress
-            every { route } returns mockRoute
+            every { navigationRoute._waypoints() } returns waypoints
         }
         val mockAction = BuildingAction.QueryBuildingOnFinalDestination(mockRouteProgress)
 
         val result = BuildingProcessor.queryBuildingOnFinalDestination(mockAction)
 
-        assertEquals(result.point, mockFinalForCoordinates)
+        assertEquals(waypoints.last().location, result.point)
     }
 
     @Test

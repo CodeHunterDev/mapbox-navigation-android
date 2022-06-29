@@ -347,7 +347,7 @@ internal class MapboxTripSession(
         }
 
         private fun calculateRemainingWaypoints(tripStatus: TripStatus): Int {
-            val routeCoordinates = tripStatus.route?.routeOptions?.coordinatesList()
+            val routeCoordinates = tripStatus.route?.directionsResponse?.waypoints()
             return if (routeCoordinates != null) {
                 val waypointsCount = routeCoordinates.size
                 val nextWaypointIndex = normalizeNextWaypointIndex(
