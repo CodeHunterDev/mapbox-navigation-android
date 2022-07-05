@@ -700,16 +700,19 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
         vibrate()
         viewBinding.startNavigation.visibility = View.GONE
         viewBinding.optionTrafficGradient.visibility = View.GONE
-        val currentLocation = navigationLocationProvider.lastLocation
+
+        Log.e("foobar", "long press point $point")
+
+        //val currentLocation = navigationLocationProvider.lastLocation
         //if (currentLocation != null) {
 //            val originPoint = Point.fromLngLat(
 //                currentLocation.longitude,
 //                currentLocation.latitude
 //            )
-            val originPoint = Point.fromLngLat(139.796358940977, 35.63784439924975)//preRecordedPoints2.last()
-
-            findRoute(originPoint, point)
-            viewBinding.routeLoadingProgressBar.visibility = View.VISIBLE
+            val originPoint = Point.fromLngLat(140.10027177671503, 35.66041689770182)//preRecordedPoints2.last()
+            val dest = Point.fromLngLat(140.12170080146024, 35.63566952951342)
+            findRoute(originPoint, dest)
+            //viewBinding.routeLoadingProgressBar.visibility = View.VISIBLE
         //}
         return false
     }
@@ -903,12 +906,16 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
 
     private val preRecordedPoints2 by lazy {
         listOf(
-            Point.fromLngLat(139.7957892431928, 35.63947950042642),
-            Point.fromLngLat(139.79278366760937, 35.6433180002178),
-            Point.fromLngLat(139.7896157573235, 35.64731316188828),
-            Point.fromLngLat(139.78615644387276, 35.65090638810382),
-            Point.fromLngLat(139.783036, 35.653966)
+            Point.fromLngLat(140.100278, 35.660428),
+            Point.fromLngLat(140.10463461168874, 35.657588988740166),
+            Point.fromLngLat(140.1070033792565, 35.65327807400259),
+            Point.fromLngLat(140.10875080530894, 35.64899722692373),
+            Point.fromLngLat(140.11115853198558, 35.644808765972535),
+            Point.fromLngLat(140.11469594034148, 35.641269385956086),
+            Point.fromLngLat(140.121707, 35.635674)
         )
+
+        XB01PointToPixelMap.getPointCollections().flatten().map { it.get() }.distinct()
     }
 
 //

@@ -31,12 +31,25 @@ object XB01PointToPixelMap {
     }
 
     fun getPointCollections(): List<List<EnhancedPoint>> = listOf(
-        pointToPixelForInterpolation,
-        pointToPixelForInterpolation2,
-        pointToPixelForInterpolation3,
+//        pointToPixelForInterpolation,
+//        pointToPixelForInterpolation2,
+        //pointToPixelForInterpolation3,
         pointToPixelForInterpolation4,
-        pointToPixelForInterpolation5
+//        pointToPixelForInterpolation5,
+        pointToPixelForInterpolation6
     )
+
+    val pointToPixelForInterpolation6: List<EnhancedPoint> by lazy {
+        listOf(
+            EnhancedPoint.KeyPoint(Point.fromLngLat(140.100278, 35.660428), Pair(1500f, 850f)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.10463461168874, 35.657588988740166)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.1070033792565, 35.65327807400259)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.10875080530894, 35.64899722692373)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.11115853198558, 35.644808765972535)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.11469594034148, 35.641269385956086)),
+            EnhancedPoint.KeyPoint(Point.fromLngLat(140.121707, 35.635674), Pair(1650f, 1000f)),
+        )
+    }
 
     val pointToPixelForInterpolation5: List<EnhancedPoint> by lazy {
         listOf(
