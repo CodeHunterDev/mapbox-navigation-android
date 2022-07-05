@@ -31,10 +31,66 @@ object XB01PointToPixelMap {
     }
 
     fun getPointCollections(): List<List<EnhancedPoint>> = listOf(
-        //pointToPixelForInterpolation,
-        //pointToPixelForInterpolation2,
-        pointToPixelForInterpolation3
+        pointToPixelForInterpolation,
+        pointToPixelForInterpolation2,
+        pointToPixelForInterpolation3,
+        pointToPixelForInterpolation4,
+        pointToPixelForInterpolation5
     )
+
+    val pointToPixelForInterpolation5: List<EnhancedPoint> by lazy {
+        listOf(
+            EnhancedPoint.KeyPoint(Point.fromLngLat(139.7957892431928, 35.63947950042642), Pair(980f, 935f)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(139.79278366760937, 35.6433180002178)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(139.7896157573235, 35.64731316188828)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(139.78615644387276, 35.65090638810382)),
+            EnhancedPoint.KeyPoint(Point.fromLngLat(139.783036, 35.653966), Pair(955f, 910f))
+        )
+    }
+
+//1500.0 y pos 850.0  //intersection with keiyo
+    val pointToPixelForInterpolation4: List<EnhancedPoint> by lazy {
+        listOf(
+            EnhancedPoint.KeyPoint(Point.fromLngLat(139.947825, 35.687562), Pair(1350f, 850f)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(139.9523903794291, 35.69035021680864)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(139.95750301889106, 35.69247997413077)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(139.963261, 35.692137)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(139.9685439403147, 35.69073784219612)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(139.9738429865759, 35.689360336027065)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(139.97916941022171, 35.68796229193639)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(139.98449538673054, 35.686563359013064)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(139.98979146607022, 35.68513554545122)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(139.9948164527124, 35.68291167450362)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(139.999693, 35.680527)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.00284035657378, 35.6767829472764)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.0054077878199, 35.672799074325106)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.01001788578822, 35.66989421440224)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.0145102917547, 35.667180873468986)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.019013, 35.664479)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.023738, 35.662031)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.02882506357946, 35.66014062883558)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.03430114933755, 35.658903210672406)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.039297, 35.656781)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.04403923654306, 35.65402339176295)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.04899983474888, 35.651641203977675)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.05436747681992, 35.65001168361462)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.05981535387707, 35.64904384745562)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.06495986993568, 35.64737077080455)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.06905280960177, 35.64419324048409)),
+            EnhancedPoint.KeyPoint(Point.fromLngLat(140.07390507058378, 35.641753258694145), Pair(1435f, 920f)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.079322, 35.643043)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.08340182663466, 35.64629439506633)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.0874605228988, 35.649589727616394)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.09158147882124, 35.65290436558827)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.096272, 35.655642)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.09990680652754, 35.65928294339027)), //Pair(1500f, 850f)
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.102555518523, 35.66336307195332)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.107858, 35.664959)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.112443157269, 35.66760291726735)),
+            EnhancedPoint.MapPoint(Point.fromLngLat(140.116887, 35.670398)),
+            EnhancedPoint.KeyPoint(Point.fromLngLat(140.12226484989444, 35.67158599876446), Pair(1660f, 705f)),
+        )
+    }
 
     val pointToPixelForInterpolation3: List<EnhancedPoint> by lazy {
         listOf(
@@ -102,39 +158,39 @@ object XB01PointToPixelMap {
             EnhancedPoint.MapPoint(Point.fromLngLat(139.93463179716977, 35.67890020114241)),
             EnhancedPoint.MapPoint(Point.fromLngLat(139.93892554405517, 35.682089702346346)),
             EnhancedPoint.MapPoint(Point.fromLngLat(139.94337886979417, 35.68483699621751)),
-            EnhancedPoint.KeyPoint(Point.fromLngLat(139.9478250774336, 35.68756223045331), Pair(1350f, 850f)), //  intersection of B and higashi kanto
-            EnhancedPoint.MapPoint(Point.fromLngLat(139.9524928313749, 35.69041286397442)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(139.95771046778145, 35.692513612458036)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(139.963261, 35.692137)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(139.9685439403147, 35.69073784219612)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(139.9738429865759, 35.689360336027065)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(139.97916941022171, 35.68796229193639)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(139.98449538673054, 35.686563359013064)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(139.98979146607022, 35.68513554545122)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(139.9948164527124, 35.68291167450362)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(139.999693, 35.680527)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(140.00284035657378, 35.6767829472764)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(140.0054077878199, 35.672799074325106)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(140.01001788578822, 35.66989421440224)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(140.0145102917547, 35.667180873468986)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(140.019013, 35.664479)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(140.023738, 35.662031)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(140.02882506357946, 35.66014062883558)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(140.03430114933755, 35.658903210672406)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(140.039297, 35.656781)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(140.04403923654306, 35.65402339176295)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(140.04899983474888, 35.651641203977675)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(140.05436747681992, 35.65001168361462)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(140.05981535387707, 35.64904384745562)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(140.06495986993568, 35.64737077080455)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(140.06905280960177, 35.64419324048409)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(140.07390507058378, 35.641753258694145)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(140.079322, 35.643043)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(140.08340182663466, 35.64629439506633)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(140.0874605228988, 35.649589727616394)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(140.09158147882124, 35.65290436558827)),
-            EnhancedPoint.MapPoint(Point.fromLngLat(140.096272, 35.655642)),
-            EnhancedPoint.KeyPoint(Point.fromLngLat(140.099908894798, 35.65928678739391), Pair(1350f, 850f)),
+            EnhancedPoint.KeyPoint(Point.fromLngLat(139.9478250774336, 35.68756223045331), Pair(1350f, 850f)), //  intersection of B and Gaikan
+//            EnhancedPoint.MapPoint(Point.fromLngLat(139.9524928313749, 35.69041286397442)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(139.95771046778145, 35.692513612458036)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(139.963261, 35.692137)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(139.9685439403147, 35.69073784219612)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(139.9738429865759, 35.689360336027065)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(139.97916941022171, 35.68796229193639)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(139.98449538673054, 35.686563359013064)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(139.98979146607022, 35.68513554545122)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(139.9948164527124, 35.68291167450362)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(139.999693, 35.680527)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(140.00284035657378, 35.6767829472764)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(140.0054077878199, 35.672799074325106)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(140.01001788578822, 35.66989421440224)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(140.0145102917547, 35.667180873468986)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(140.019013, 35.664479)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(140.023738, 35.662031)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(140.02882506357946, 35.66014062883558)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(140.03430114933755, 35.658903210672406)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(140.039297, 35.656781)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(140.04403923654306, 35.65402339176295)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(140.04899983474888, 35.651641203977675)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(140.05436747681992, 35.65001168361462)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(140.05981535387707, 35.64904384745562)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(140.06495986993568, 35.64737077080455)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(140.06905280960177, 35.64419324048409)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(140.07390507058378, 35.641753258694145)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(140.079322, 35.643043)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(140.08340182663466, 35.64629439506633)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(140.0874605228988, 35.649589727616394)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(140.09158147882124, 35.65290436558827)),
+//            EnhancedPoint.MapPoint(Point.fromLngLat(140.096272, 35.655642)),
+//            EnhancedPoint.KeyPoint(Point.fromLngLat(140.099908894798, 35.65928678739391), Pair(1350f, 850f)),
         )
     }
 
