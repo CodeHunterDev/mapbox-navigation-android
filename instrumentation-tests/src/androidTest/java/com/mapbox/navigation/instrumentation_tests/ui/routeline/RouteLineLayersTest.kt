@@ -2,6 +2,7 @@ package com.mapbox.navigation.instrumentation_tests.ui.routeline
 
 import android.location.Location
 import android.os.CountDownTimer
+import androidx.test.annotation.UiThreadTest
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.bindgen.ExpectedFactory
 import com.mapbox.geojson.Point
@@ -54,6 +55,7 @@ class RouteLineLayersTest : BaseTest<BasicNavigationViewActivity>(
     }
 
     @Test
+    @UiThreadTest
     fun basicLayerConfigurationTest() {
         val options = MapboxRouteLineOptions.Builder(activity)
             .displayRestrictedRoadSections(true)
@@ -166,6 +168,7 @@ class RouteLineLayersTest : BaseTest<BasicNavigationViewActivity>(
     // for the primary route should be moved to the top of the stack above the other
     // route line layers.
     @Test
+    @UiThreadTest
     fun updateLayerElevationTest() {
         val countDownLatch = CountDownLatch(1)
         val options = MapboxRouteLineOptions.Builder(activity)
@@ -268,6 +271,7 @@ class RouteLineLayersTest : BaseTest<BasicNavigationViewActivity>(
     // the primary route, the original primary route line should become visible and the newly
     // selected primary route should be hidden
     @Test
+    @UiThreadTest
     fun hidePrimaryRouteAndRePositionTest() {
         val countDownLatch = CountDownLatch(1)
         val options = MapboxRouteLineOptions.Builder(activity).build()
