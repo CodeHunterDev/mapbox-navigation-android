@@ -1,6 +1,8 @@
 package com.mapbox.navigation.dropin
 
+import android.content.Context
 import androidx.annotation.DrawableRes
+import androidx.annotation.Px
 import androidx.annotation.StyleRes
 import com.google.android.material.resources.TextAppearance
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
@@ -24,7 +26,11 @@ import com.mapbox.navigation.ui.voice.view.MapboxAudioGuidanceButton
  */
 @ExperimentalPreviewMapboxNavigationAPI
 class ViewStyleCustomization {
-
+    /**
+     * Specify info panel peek height.
+     * Use [defaultInfoPanelPeekHeight] to reset to default.
+     */
+    @Px var infoPanelPeekHeight: Int? = null
     /**
      * Provide custom destination marker icon.
      * Use [defaultDestinationMarker] to reset to default.
@@ -92,6 +98,13 @@ class ViewStyleCustomization {
     var maneuverViewOptions: ManeuverViewOptions? = null
 
     companion object {
+        /**
+         * Default info panel peek height in pixels.
+         */
+        @Px
+        fun defaultInfoPanelPeekHeight(context: Context): Int =
+            context.resources.getDimensionPixelSize(R.dimen.mapbox_infoPanel_peekHeight)
+
         /**
          * Default destination marker icon.
          */

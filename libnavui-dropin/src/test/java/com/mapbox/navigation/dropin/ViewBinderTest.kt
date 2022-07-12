@@ -4,6 +4,7 @@ import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
 import com.mapbox.navigation.dropin.ActionButtonDescription.Position.END
 import com.mapbox.navigation.dropin.ActionButtonDescription.Position.START
 import com.mapbox.navigation.dropin.binder.EmptyBinder
+import com.mapbox.navigation.dropin.binder.infopanel.InfoPanelBinder
 import com.mapbox.navigation.ui.base.lifecycle.UIBinder
 import io.mockk.mockk
 import org.junit.Assert.assertEquals
@@ -51,6 +52,7 @@ internal class ViewBinderTest {
                 infoPanelContentBinder = UIBinder.USE_DEFAULT
                 actionButtonsBinder = UIBinder.USE_DEFAULT
                 customActionButtons = emptyList()
+                infoPanelBinder = InfoPanelBinder.defaultBinder
             }
         )
 
@@ -62,6 +64,7 @@ internal class ViewBinderTest {
         assertTrue(sut.infoPanelContentBinder.value == null)
         assertTrue(sut.actionButtonsBinder.value == null)
         assertTrue(sut.customActionButtons.value.isEmpty())
+        assertEquals(InfoPanelBinder.defaultBinder, sut.infoPanelBinder.value)
     }
 
     private fun customization() = ViewBinderCustomization().apply {
@@ -77,5 +80,6 @@ internal class ViewBinderTest {
             ActionButtonDescription(mockk(), START),
             ActionButtonDescription(mockk(), END)
         )
+        infoPanelBinder = mockk()
     }
 }

@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.asStateFlow
 @ExperimentalPreviewMapboxNavigationAPI
 internal class NavigationViewStyles(context: Context) {
 
+    private var _infoPanelPeekHeight: MutableStateFlow<Int> =
+        MutableStateFlow(ViewStyleCustomization.defaultInfoPanelPeekHeight(context))
     private var _tripProgressStyle: MutableStateFlow<Int> =
         MutableStateFlow(ViewStyleCustomization.defaultTripProgressStyle())
     private var _audioGuidanceButtonStyle: MutableStateFlow<Int> =
@@ -37,6 +39,7 @@ internal class NavigationViewStyles(context: Context) {
     private var _maneuverViewOptions: MutableStateFlow<ManeuverViewOptions> =
         MutableStateFlow(ViewStyleCustomization.defaultManeuverViewOptions())
 
+    val infoPanelPeekHeight: StateFlow<Int> = _infoPanelPeekHeight.asStateFlow()
     val tripProgressStyle: StateFlow<Int> = _tripProgressStyle.asStateFlow()
     val recenterButtonStyle: StateFlow<Int> = _recenterButtonStyle.asStateFlow()
     val audioGuidanceButtonStyle: StateFlow<Int> = _audioGuidanceButtonStyle.asStateFlow()
@@ -52,6 +55,7 @@ internal class NavigationViewStyles(context: Context) {
     val maneuverViewOptions: StateFlow<ManeuverViewOptions> = _maneuverViewOptions.asStateFlow()
 
     fun applyCustomization(customization: ViewStyleCustomization) {
+        customization.infoPanelPeekHeight?.also { _infoPanelPeekHeight.tryEmit(it) }
         customization.tripProgressStyle?.also { _tripProgressStyle.tryEmit(it) }
         customization.recenterButtonStyle?.also { _recenterButtonStyle.tryEmit(it) }
         customization.cameraModeButtonStyle?.also { _cameraModeButtonStyle.tryEmit(it) }
