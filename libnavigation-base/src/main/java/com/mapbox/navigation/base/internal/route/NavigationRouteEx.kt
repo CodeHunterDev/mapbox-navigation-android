@@ -8,6 +8,7 @@ import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.api.directions.v5.models.Incident
 import com.mapbox.api.directions.v5.models.LegAnnotation
 import com.mapbox.api.directions.v5.models.RouteOptions
+import com.mapbox.navigation.base.internal.NativeRouteParserWrapper
 import com.mapbox.navigation.base.internal.SDKRouteParser
 import com.mapbox.navigation.base.route.NavigationRoute
 import com.mapbox.navigation.base.route.toNavigationRoute
@@ -86,6 +87,20 @@ fun createNavigationRoutes(
     routerOrigin: com.mapbox.navigation.base.route.RouterOrigin,
 ): List<NavigationRoute> =
     NavigationRoute.create(directionsResponse, routeOptions, routeParser, routerOrigin)
+
+@VisibleForTesting
+fun createNavigationRoutes(
+    directionsRoutes: List<DirectionsRoute>,
+    routeOptions: RouteOptions,
+    routerOrigin: com.mapbox.navigation.base.route.RouterOrigin,
+    routeParser: SDKRouteParser = NativeRouteParserWrapper
+): List<NavigationRoute> =
+    NavigationRoute.create(
+        directionsRoutes,
+        routeOptions,
+        routerOrigin,
+        routeParser,
+    )
 
 /**
  * Internal API to create a new [NavigationRoute] from a native peer.

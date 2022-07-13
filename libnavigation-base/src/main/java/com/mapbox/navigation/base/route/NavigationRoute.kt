@@ -18,9 +18,10 @@ import com.mapbox.navigation.base.internal.SDKRouteParser
 import com.mapbox.navigation.base.internal.factory.RoadObjectFactory.toUpcomingRoadObjects
 import com.mapbox.navigation.base.internal.route.RouteCompatibilityCache
 import com.mapbox.navigation.base.internal.route.Waypoint
+import com.mapbox.navigation.base.internal.route.toNavigationRoute
 import com.mapbox.navigation.base.internal.utils.mapToSdkRouteOrigin
-import com.mapbox.navigation.base.trip.model.roadobject.UpcomingRoadObject
 import com.mapbox.navigation.base.internal.utils.mapToSkd
+import com.mapbox.navigation.base.trip.model.roadobject.UpcomingRoadObject
 import com.mapbox.navigation.utils.internal.ThreadController
 import com.mapbox.navigation.utils.internal.logD
 import com.mapbox.navigation.utils.internal.logE
@@ -28,6 +29,7 @@ import com.mapbox.navigation.utils.internal.logI
 import com.mapbox.navigator.RouteInterface
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import org.json.JSONArray
 import java.net.URL
 
 /**
@@ -206,6 +208,34 @@ class NavigationRoute internal constructor(
         }
 
         internal fun create(
+            directionsRoutes: List<DirectionsRoute>,
+            routeOptions: RouteOptions,
+            routerOrigin: RouterOrigin,
+            routeParser: SDKRouteParser = NativeRouteParserWrapper
+        ): List<NavigationRoute> {
+            val directionsRoutesJson = JSONArray(directionsRoutes.map { it.toJson() }).toString()
+            return create(
+                directionsRoutesJson,
+                routeOptions.toUrl("").toString(),
+                routerOrigin,
+                routeParser
+            )
+        }
+
+        private fun create(
+            directionsRoutesJson: String,
+            routeOptionsUrlString: String,
+            routerOrigin: RouterOrigin,
+            routeParser: SDKRouteParser = NativeRouteParserWrapper
+        ): List<NavigationRoute> {
+            return routeParser.parseDirectionsRoutes(
+                directionsRoutesJson, routeOptionsUrlString, routerOrigin
+            ).run {
+                create(this)
+            }
+        }
+
+        internal fun create(
             directionsResponse: DirectionsResponse,
             routeOptions: RouteOptions,
             routeParser: SDKRouteParser,
@@ -253,6 +283,19 @@ class NavigationRoute internal constructor(
                     routeOptions,
                     routeInterface
                 )
+            }.cache()
+        }
+
+        private fun create(
+            expected: Expected<String, List<RouteInterface>>
+        ): List<NavigationRoute> {
+            return expected.fold({ error ->
+                logE("NavigationRoute", "Failed to parse a route. Reason: $error")
+                listOf()
+            }, { value ->
+                value
+            }).map { routeInterface ->
+                routeInterface.toNavigationRoute()
             }.cache()
         }
     }
