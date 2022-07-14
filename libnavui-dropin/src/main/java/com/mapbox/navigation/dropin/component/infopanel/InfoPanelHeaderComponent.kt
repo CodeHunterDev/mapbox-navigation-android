@@ -1,5 +1,6 @@
 package com.mapbox.navigation.dropin.component.infopanel
 
+import android.view.View
 import androidx.annotation.StyleRes
 import androidx.core.view.isVisible
 import com.mapbox.navigation.base.ExperimentalPreviewMapboxNavigationAPI
@@ -7,14 +8,21 @@ import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.dropin.R
 import com.mapbox.navigation.dropin.databinding.MapboxInfoPanelHeaderLayoutBinding
 import com.mapbox.navigation.ui.app.internal.Store
-import com.mapbox.navigation.ui.app.internal.destination.DestinationAction
+import com.mapbox.navigation.ui.app.internal.endNavigation
+import com.mapbox.navigation.ui.app.internal.extension.dispatch
 import com.mapbox.navigation.ui.app.internal.navigation.NavigationState
 import com.mapbox.navigation.ui.app.internal.navigation.NavigationStateAction
 import com.mapbox.navigation.ui.app.internal.routefetch.RoutesAction
 import com.mapbox.navigation.ui.app.internal.routefetch.RoutesState
+import com.mapbox.navigation.ui.app.internal.showRoutePreview
+import com.mapbox.navigation.ui.app.internal.startActiveNavigation
 import com.mapbox.navigation.ui.base.lifecycle.UIComponent
 import com.mapbox.navigation.utils.internal.ifNonNull
 import com.mapbox.navigation.utils.internal.toPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
@@ -56,27 +64,26 @@ internal class InfoPanelHeaderComponent(
                 ?: resources.getString(R.string.mapbox_drop_in_dropped_pin)
         }
 
-        binding.routePreview.setOnClickListener {
-            coroutineScope.launch {
-                if (fetchRouteIfNeeded()) {
-                    store.dispatch(NavigationStateAction.Update(NavigationState.RoutePreview))
-                }
-            }
+        binding.routePreview.onClick(coroutineScope) {
+            store.dispatch(showRoutePreview())
         }
 
-        binding.startNavigation.setOnClickListener {
-            coroutineScope.launch {
-                if (fetchRouteIfNeeded()) {
-                    store.dispatch(NavigationStateAction.Update(NavigationState.ActiveNavigation))
-                }
-            }
+        binding.startNavigation.onClick(coroutineScope) {
+            store.dispatch(startActiveNavigation())
         }
 
-        binding.endNavigation.setOnClickListener {
-            store.dispatch(RoutesAction.SetRoutes(emptyList()))
-            store.dispatch(DestinationAction.SetDestination(null))
-            store.dispatch(NavigationStateAction.Update(NavigationState.FreeDrive))
+        binding.endNavigation.onClick(coroutineScope) {
+            store.dispatch(endNavigation())
         }
+    }
+
+    private fun View.onClick(scope: CoroutineScope, action: suspend CoroutineScope.(View) -> Unit) {
+        // launch one actor
+        val eventActor = scope.actor<View>(Dispatchers.Main, capacity = Channel.CONFLATED) {
+            for (event in channel) action(event)
+        }
+        // install a listener to activate this actor
+        setOnClickListener { eventActor.trySend(it) }
     }
 
     /**
