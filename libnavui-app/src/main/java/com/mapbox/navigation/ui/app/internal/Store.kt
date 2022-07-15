@@ -78,7 +78,7 @@ open class Store {
         }
 
         isDispatching = true
-        if(!intercept(action)) {
+        if (!intercept(action)) {
             reduce(action)
         }
         isDispatching = false

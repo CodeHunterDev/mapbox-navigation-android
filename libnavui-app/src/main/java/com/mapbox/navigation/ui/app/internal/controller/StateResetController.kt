@@ -5,12 +5,8 @@ import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.internal.extensions.flowTripSessionState
 import com.mapbox.navigation.core.trip.session.TripSessionState
 import com.mapbox.navigation.ui.app.internal.Store
-import com.mapbox.navigation.ui.app.internal.destination.DestinationAction
 import com.mapbox.navigation.ui.app.internal.endNavigation
 import com.mapbox.navigation.ui.app.internal.extension.dispatch
-import com.mapbox.navigation.ui.app.internal.navigation.NavigationState
-import com.mapbox.navigation.ui.app.internal.navigation.NavigationStateAction
-import com.mapbox.navigation.ui.app.internal.routefetch.RoutesAction
 import com.mapbox.navigation.ui.base.lifecycle.UIComponent
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce

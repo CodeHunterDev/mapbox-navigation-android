@@ -2,7 +2,6 @@ package com.mapbox.navigation.ui.app.internal
 
 import com.mapbox.navigation.ui.app.internal.destination.DestinationAction
 import com.mapbox.navigation.ui.app.internal.extension.ThunkAction
-import com.mapbox.navigation.ui.app.internal.extension.takeAction
 import com.mapbox.navigation.ui.app.internal.navigation.NavigationState
 import com.mapbox.navigation.ui.app.internal.navigation.NavigationStateAction
 import com.mapbox.navigation.ui.app.internal.routefetch.RoutesAction
@@ -23,43 +22,25 @@ fun endNavigation() = ThunkAction { store ->
     store.dispatch(NavigationStateAction.Update(NavigationState.FreeDrive))
 }
 
-fun CoroutineScope.showRoutePreview2() = ThunkAction { store ->
-    launch {
-        if (fetchRouteIfNeeded2(store)) {
-            store.dispatch(NavigationStateAction.Update(NavigationState.RoutePreview))
-        }
-    }
+/**
+ * Show Route Preview ThunkAction creator.
+ */
+fun CoroutineScope.showRoutePreview() = fetchRouteAndContinue { store ->
+    store.dispatch(NavigationStateAction.Update(NavigationState.RoutePreview))
 }
 
-fun CoroutineScope.showRoutePreview() = fetchRouteIfNeeded {
-    it.dispatch(NavigationStateAction.Update(NavigationState.RoutePreview))
+/**
+ * Start Active Navigation ThunkAction creator.
+ */
+fun CoroutineScope.startActiveNavigation() = fetchRouteAndContinue { store ->
+    store.dispatch(NavigationStateAction.Update(NavigationState.ActiveNavigation))
 }
 
-fun CoroutineScope.startActiveNavigation() = fetchRouteIfNeeded {
-    it.dispatch(NavigationStateAction.Update(NavigationState.ActiveNavigation))
-}
-
-private fun CoroutineScope.fetchRouteIfNeeded(continuation: (Store) -> Unit) =
+private fun CoroutineScope.fetchRouteAndContinue(continuation: (Store) -> Unit) =
     ThunkAction { store ->
         launch {
-            val storeState = store.state.value
-            if (storeState.routes is RoutesState.Ready) {
+            if (fetchRouteIfNeeded(store)) {
                 continuation(store)
-                return@launch
-            }
-            if (storeState.routes is RoutesState.Fetching) return@launch
-
-            ifNonNull(
-                storeState.location?.enhancedLocation?.toPoint(),
-                storeState.destination
-            ) { lastPoint, destination ->
-                store.dispatch(RoutesAction.FetchPoints(listOf(lastPoint, destination.point)))
-                val action = store.takeAction {
-                    it is RoutesAction.SetRoutes
-                        || it is RoutesAction.Canceled
-                        || it is RoutesAction.Failed
-                }
-                if (action is RoutesAction.SetRoutes) continuation(store)
             }
         }
     }
@@ -71,7 +52,7 @@ private fun CoroutineScope.fetchRouteIfNeeded(continuation: (Store) -> Unit) =
  *
  * @return `true` once in RoutesState.Ready state, otherwise `false`
  */
-private suspend fun fetchRouteIfNeeded2(store: Store): Boolean {
+private suspend fun fetchRouteIfNeeded(store: Store): Boolean {
     val storeState = store.state.value
     if (storeState.routes is RoutesState.Ready) return true
     if (storeState.routes is RoutesState.Fetching) return false
@@ -81,11 +62,11 @@ private suspend fun fetchRouteIfNeeded2(store: Store): Boolean {
         storeState.destination
     ) { lastPoint, destination ->
         store.dispatch(RoutesAction.FetchPoints(listOf(lastPoint, destination.point)))
-        store.waitForReady()
+        store.waitWhileFetching()
+        store.state.value.routes is RoutesState.Ready
     } ?: false
 }
 
-private suspend fun Store.waitForReady(): Boolean {
+private suspend fun Store.waitWhileFetching() {
     select { it.routes }.takeWhile { it is RoutesState.Fetching }.collect()
-    return state.value.routes is RoutesState.Ready
 }

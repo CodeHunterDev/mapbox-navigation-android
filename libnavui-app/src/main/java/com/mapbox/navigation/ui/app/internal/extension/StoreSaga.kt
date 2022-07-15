@@ -27,16 +27,16 @@ suspend fun Store.takeAction(predicate: (action: Action) -> Boolean): Action =
         cont.invokeOnCancellation { unregisterMiddleware(m) }
     }
 
-internal suspend fun <T: Action> Store.takeAction(actionCls: KClass<T>): T =
+internal suspend fun <T : Action> Store.takeAction(actionCls: KClass<T>): T =
     takeAction { actionCls.isInstance(it) } as T
 
-internal fun <T: Action> Store.takeEveryAction(
+internal fun <T : Action> Store.takeEveryAction(
     coroutineScope: CoroutineScope,
     actionCls: KClass<T>,
     block: suspend (action: T) -> Unit
 ): Job {
     return coroutineScope.launch {
-        while(isActive) {
+        while (isActive) {
             val action = takeAction(actionCls)
             block(action)
         }
