@@ -129,16 +129,9 @@
                 app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
                 app:behavior_hideable="true"
                 app:behavior_fitToContents="true"
-                app:behavior_peekHeight="@dimen/mapbox_infoPanel_peekHeight"
+                tools:behavior_peekHeight="@dimen/mapbox_infoPanel_peekHeight"
                 tools:background="@drawable/mapbox_bg_info_panel"
-                tools:minHeight="@dimen/mapbox_infoPanel_peekHeight">
-
-                <!--
-                    InfoPanelBinder will inject customizable content container
-                    which will host mapbox_info_panel_layout content.
-                -->
-
-            </FrameLayout>
+                tools:minHeight="@dimen/mapbox_infoPanel_peekHeight" />
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

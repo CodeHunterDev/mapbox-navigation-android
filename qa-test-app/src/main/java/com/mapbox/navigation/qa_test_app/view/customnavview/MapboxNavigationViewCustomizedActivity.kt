@@ -377,7 +377,9 @@ class MapboxNavigationViewCustomizedActivity : DrawerActivity() {
             binding.navigationView.customizeViewBinders {
                 infoPanelHeaderBinder = UIBinder { viewGroup ->
                     viewGroup.removeAllViews()
-                    viewGroup.addView(LayoutInfoPanelHeaderBinding.inflate(layoutInflater).root)
+                    val header = LayoutInfoPanelHeaderBinding
+                        .inflate(layoutInflater, viewGroup, false).root
+                    viewGroup.addView(header)
                     UIComponent()
                 }
             }
